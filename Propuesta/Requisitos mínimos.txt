@@ -1,0 +1,17 @@
+Usar Python en el código principal.	->	OK
+
+Implementar alguna funcionalidad en un lenguaje o entorno distinto de Python e
+integrarlo con la aplicación principal.
+
+Incluír en la aplicación consultas al API de algún servicio web (Facebook,
+Twitter, Spotify, Google Maps...)	->	OK
+
+	API de Geolocalización IP
+	API de Torrents
+
+Realizar algún tipo de análisis de datos a través de Pandas	->	OK
+
+Tener una interfaz web hecha en Django.				-> 	OK
+
+La página web debería tener soporte de usuarios y permitir que exista más de un 
+usuario conectado a la vez.
