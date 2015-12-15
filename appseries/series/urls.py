@@ -1,5 +1,8 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import patterns, url, include
 from series import views	
 
-urlpatterns = patterns('', url(r'^$', views.index, name='index'))
-	
+urlpatterns = [
+	url(r'^$', views.index, name='index'),
+	url(r'^register/', views.register, name='register'),
+	url(r'^', include('django.contrib.auth.urls')),
+]
