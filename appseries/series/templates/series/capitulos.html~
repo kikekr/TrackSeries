@@ -27,15 +27,6 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-
-<br>
-{% if request.user.is_authenticated %}
-Hola {{ request.user.username}} <BR>
-<a href="{% url 'logout' %}?next={{request.path}}">Salir</a>
-{% else %}
-<a href="{% url 'login' %}?next={{request.path}}">Acceder</a>
-{% endif %}
-
           <a class="navbar-brand" href="#">Estadísticas de series</a>
         </div>
         <div id="navbar" class="navbar-collapse collapse">
