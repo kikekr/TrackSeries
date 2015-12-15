@@ -4,6 +4,9 @@ from django.http import HttpResponse
 def index(request):
 	return render(request, 'series/NuevaSerie.html')
 
+def estadisticas(request):
+	return render(request, 'series/estadisticas.html')
+
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.http import HttpResponseRedirect
