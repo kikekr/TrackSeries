@@ -1,0 +1,11 @@
+appseries/appseries/__init__.pyc
+appseries/appseries/settings.pyc
+appseries/appseries/urls.pyc
+appseries/appseries/wsgi.pyc
+appseries/series/__init__.pyc
+appseries/series/admin.pyc
+appseries/series/migrations/0001_initial.pyc
+appseries/series/migrations/__init__.pyc
+appseries/series/models.pyc
+appseries/series/urls.pyc
+appseries/series/views.pyc
