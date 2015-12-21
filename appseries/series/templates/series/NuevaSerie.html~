@@ -84,8 +84,11 @@ Hola {{ request.user.username}} <BR>
             <table class="table table-striped">
               <thead>
                 <tr>
-                  <th>#</th>
-                  <th>Nombre</th>
+		  <li> ID: {{ ID }}	
+		  <li> Nombre de la serie: {{ nombre }}
+		  <li> Idioma: {{ idioma }}
+		  <li> Descripcion: {{ descripcion }}
+	
                 </tr>
               </thead>
               <tbody>	

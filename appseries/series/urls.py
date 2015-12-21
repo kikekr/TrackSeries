@@ -5,6 +5,7 @@ from django.conf.urls.static import static
 urlpatterns = [
 	url(r'^$', views.index, name='index'),
 	url(r'^estadisticas/', views.estadisticas, name='estadisticas'),
+	url(r'^nueva/', views.nuevaSerie, name='nueva'),
 	url(r'^register/', views.register, name='register'),
 	url(r'^', include('django.contrib.auth.urls')),
 ]
