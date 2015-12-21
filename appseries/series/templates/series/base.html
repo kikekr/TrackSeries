@@ -1,4 +1,5 @@
 {% load staticfiles %}
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -8,7 +9,15 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>Dashboard Template for Bootstrap</title>
+    <link rel="shortcut icon" type="image/x-icon" href="{% static 'series/images/favicon.ico' %}">
+
+    <title>
+      {% if title %}
+        {{ title }}
+      {% else %}
+        Appseries
+      {% endif %}
+    </title>
 
     <!-- Bootstrap core CSS -->
     <link href="{% static 'series/css/bootstrap.min.css' %}" rel="stylesheet">
