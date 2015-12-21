@@ -3,6 +3,9 @@
 <p>Nombre de usuario y contraseña no coincide. Inténtelo de nuevo</p>
 {% endif %}
 
+{% if user.is_authenticated %}
+{% endif %}
+
 {% if next %}
     {% if user.is_authenticated %}
     <p>Tu cuenta no tiene acceso a esta página. Por favor, entre con un usuario que tenga acceso a esta página.</p>
@@ -25,5 +28,9 @@
 </table>
 
 <input type="submit" value="Acceder" />
-<input type="hidden" name="next" value="{{ next }}" />
+{% if next %}
+    <input type="hidden" name="next" value="{{ next }}" />
+{% else %}
+    <input type="hidden" name="next" value="/series/" />
+{% endif %}
 </form>
