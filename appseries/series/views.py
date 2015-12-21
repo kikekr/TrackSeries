@@ -2,10 +2,12 @@ from django.shortcuts import render
 from django.http import HttpResponse
 
 def index(request):
-	return render(request, 'series/NuevaSerie.html')
+    context = {'title' : 'Inicio'}
+    return render(request, 'series/index.html', context)
 
 def estadisticas(request):
-	return render(request, 'series/estadisticas.html')
+    context = {'title' : 'Estadísticas'}
+	return render(request, 'series/estadisticas.html', context)
 
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
