@@ -1,4 +1,4 @@
-{% load staticfiles %}
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -11,10 +11,10 @@
     <title>Dashboard Template for Bootstrap</title>
 
     <!-- Bootstrap core CSS -->
-    <link href="{% static 'series/css/bootstrap.min.css' %}" rel="stylesheet">
+    <link href="./css/bootstrap.min.css" rel="stylesheet">
 
     <!-- Custom styles for this template -->
-    <link href="{% static 'series/css/dashboard.css' %}" rel="stylesheet">
+    <link href="./css/dashboard.css" rel="stylesheet">
   </head>
 
   <body>
@@ -27,16 +27,6 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-
-<br>
-{% if request.user.is_authenticated %}
-Hola {{ request.user.username}} <BR>
-<a href="{% url 'logout' %}?next={{request.path}}">Salir</a>
-{% else %}
-<a href="{% url 'login' %}?next={{request.path}}">Acceder</a>
-{% endif %}
-
-
           <a class="navbar-brand" href="#">Estadísticas de series</a>
         </div>
         <div id="navbar" class="navbar-collapse collapse">
@@ -61,7 +51,7 @@ Hola {{ request.user.username}} <BR>
           </ul>
         </div>
         <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
-          <h1 class="page-header">Resultados por país</h1>
+          <h1 class="page-header">Temporadas</h1>
 
           <div class="table-responsive">
             <table class="table table-striped">
@@ -91,6 +81,6 @@ Hola {{ request.user.username}} <BR>
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
-    <script src="{% static 'series/js/bootstrap.min.js' %}"></script>
+    <script src="./js/bootstrap.min.js"></script>
   </body>
 </html>
