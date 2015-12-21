@@ -15,11 +15,12 @@ from django.http import HttpResponse
 
 def index(request):
 	data = getSeries("The Walking Dead")
-	context = {'ID': data[0][0].text, 'idioma': data[0][1].text, 'nombre': data[0][2].text, 'descripcion': data[0][4].text}
+	context = {'title' : 'Inicio', 'ID': data[0][0].text, 'idioma': data[0][1].text, 'nombre': data[0][2].text, 'descripcion': data[0][4].text}
 	return render(request, 'series/NuevaSerie.html', context)
 
 def estadisticas(request):
-	return render(request, 'series/estadisticas.html')
+    context = {'title' : 'Estadisticas'}
+    return render(request, 'series/estadisticas.html', context)
 
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
