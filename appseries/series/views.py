@@ -6,8 +6,8 @@ def index(request):
     return render(request, 'series/index.html', context)
 
 def estadisticas(request):
-    context = {'title' : 'Estadísticas'}
-	return render(request, 'series/estadisticas.html', context)
+    context = {'title' : 'Estadisticas'}
+    return render(request, 'series/estadisticas.html', context)
 
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
