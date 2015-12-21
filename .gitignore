@@ -10,3 +10,6 @@ appseries/series/migrations/__init__.pyc
 appseries/series/models.pyc
 appseries/series/urls.pyc
 appseries/series/views.pyc
+appseries/series/templates/series/NuevaSerie.html~
+appseries/series/urls.py~
+appseries/series/views.py~
