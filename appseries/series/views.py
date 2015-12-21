@@ -13,10 +13,14 @@ def getSeries(name):
 from django.shortcuts import render
 from django.http import HttpResponse
 
-def index(request):
+def nuevaSerie(request):
 	data = getSeries("The Walking Dead")
 	context = {'title' : 'Inicio', 'ID': data[0][0].text, 'idioma': data[0][1].text, 'nombre': data[0][2].text, 'descripcion': data[0][4].text}
 	return render(request, 'series/NuevaSerie.html', context)
+
+def index(request):
+	context = {'title' : 'Inicio'}
+	return render(request, 'series/index.html', context)
 
 def estadisticas(request):
     context = {'title' : 'Estadisticas'}

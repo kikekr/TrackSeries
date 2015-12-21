@@ -72,7 +72,7 @@ Hola {{ request.user.username}} <BR>
           <div class="col-lg-6">
 			<div class="input-group">
 			  <span class="input-group-btn">
-				<a href="NuevaSerie.html" class="btn btn-default" type="button">Go!</button></a>
+				<a class="btn btn-default" type="button">Go!</button></a>
 			  </span>
 			  <input type="text" class="form-control" placeholder="Search for...">
 			</div>
@@ -84,8 +84,11 @@ Hola {{ request.user.username}} <BR>
             <table class="table table-striped">
               <thead>
                 <tr>
-                  <th>#</th>
-                  <th>Nombre</th>
+		  <li> ID: {{ ID }}	
+		  <li> Nombre de la serie: {{ nombre }}
+		  <li> Idioma: {{ idioma }}
+		  <li> Descripcion: {{ descripcion }}
+	
                 </tr>
               </thead>
               <tbody>	
