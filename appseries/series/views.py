@@ -19,8 +19,11 @@ def nuevaSerie(request):
 	return render(request, 'series/NuevaSerie.html', context)
 
 def index(request):
-	context = {'title' : 'Inicio'}
-	return render(request, 'series/index.html', context)
+    context = {'title' : 'Inicio'}
+    if request.user.is_authenticated():
+        return render(request, 'series/index-auth.html', context)
+    else:
+        return render(request, 'series/index-noauth.html', context)
 
 def estadisticas(request):
     context = {'title' : 'Estadisticas'}
@@ -31,7 +34,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.http import HttpResponseRedirect
 
 def register(request):
-    if request.method == 'POST': 	
+    if request.method == 'POST':
         form = UserCreationForm(request.POST)
         if form.is_valid():
             new_user = form.save()

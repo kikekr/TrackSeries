@@ -1,36 +1,31 @@
+{% extends 'series/no-menu.html' %}
 
-{% if form.errors %}
-<p>Nombre de usuario y contraseña no coincide. Inténtelo de nuevo</p>
-{% endif %}
-
-{% if user.is_authenticated %}
-{% endif %}
-
-{% if next %}
-    {% if user.is_authenticated %}
-    <p>Tu cuenta no tiene acceso a esta página. Por favor, entre con un usuario que tenga acceso a esta página.</p>
-    {% else %}
-    <p>Entra con un usuario para ver esta página.</p>
+{% block main %}
+    {% if form.errors %}
+    <p>Nombre de usuario y contraseña no coincide. Inténtelo de nuevo</p>
     {% endif %}
-{% endif %}
 
-<form method="post" action="{% url 'django.contrib.auth.views.login' %}">
-{% csrf_token %}
-<table>
-<tr>
-    <td>{{ form.username.label_tag }}</td>
-    <td>{{ form.username }}</td>
-</tr>
-<tr>
-    <td>{{ form.password.label_tag }}</td>
-    <td>{{ form.password }}</td>
-</tr>
-</table>
+    {% if user.is_authenticated %}
+    {% endif %}
 
-<input type="submit" value="Acceder" />
-{% if next %}
-    <input type="hidden" name="next" value="{{ next }}" />
-{% else %}
-    <input type="hidden" name="next" value="/series/" />
-{% endif %}
-</form>
+    <form method="post" action="{% url 'django.contrib.auth.views.login' %}">
+    {% csrf_token %}
+    <table>
+    <tr>
+        <td>{{ form.username.label_tag }}</td>
+        <td>{{ form.username }}</td>
+    </tr>
+    <tr>
+        <td>{{ form.password.label_tag }}</td>
+        <td>{{ form.password }}</td>
+    </tr>
+    </table>
+
+    <input type="submit" value="Acceder" />
+    {% if next %}
+        <input type="hidden" name="next" value="{{ next }}" />
+    {% else %}
+        <input type="hidden" name="next" value="/series/" />
+    {% endif %}
+    </form>
+{% endblock %}
