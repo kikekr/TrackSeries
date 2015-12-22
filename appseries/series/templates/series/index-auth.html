@@ -2,12 +2,37 @@
 
 {% block sidebar %}
   <ul class="nav nav-sidebar">
-    <li><a href="/series/panel/">Panel de control</a></li>
+    <li class="active"><a href="/series/">Panel de control</a></li>
+  </ul>
+  <ul class="nav nav-sidebar">
+    <li><a><b>Series</a></b></li>
+    <li><a href="/series/1">The walking dead</a></li>
+    <li><a href="/series/1">Como conocí a vuestra madre</a></li>
+    <li><a href="/series/1">Breaking bad</a></li>
   </ul>
 {% endblock %}
 
 {% block main %}
-  <h1 class="page-header">Usuario autenticado</h1>
+  <h1 class="page-header">Panel de control</h1>
 
-  <span>Identifícate para poder acceder al panel de control y gestionar tus series</span>
+  <div class="table-responsive">
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Id</th>
+          <th>Nombre</th>
+          <th>Estado</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>1</td>
+          <td>The walking dead</td>
+          <td>Completo</td>
+          <td>Ver Borrar</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 {% endblock %}

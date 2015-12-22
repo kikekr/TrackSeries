@@ -1,8 +1,20 @@
+{% extends 'series/no-menu.html' %}
 
-<h1>Regístrate aquí</h1>
-        <form method="post" action=".">
-                {% csrf_token %}
-                {{ form.as_p }}
+{% block main %}
+    <h1 class="page-header">Regístrate aquí</h1>
 
-                <input type="submit" value="Registrarse" />
-        </form>
+    {% if error %}
+        <div class="alert alert-danger" role="alert"><ul>
+            {% for e in error.itervalues %}
+                <li>{{ e }}</li>
+            {% endfor %}
+        </ul></div>
+    {% endif %}
+
+    <form method="post" action=".">
+        {% csrf_token %}
+        {{ form.as_p }}
+
+        <input type="submit" value="Registrarse" />
+    </form>
+{% endblock %}

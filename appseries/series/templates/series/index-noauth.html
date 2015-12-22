@@ -1,6 +1,10 @@
 {% extends 'series/no-menu.html' %}
 
 {% block main %}
+  {% if request.GET.newuser %}
+    <div class="alert alert-success" role="alert">Usuario <b>{{ request.GET.newuser }}</b> creado correctamente.</div>
+  {% endif %}
+
   <h1 class="page-header">No estas identificado</h1>
 
   <span>Identifícate para poder acceder al panel de control y gestionar tus series</span>
