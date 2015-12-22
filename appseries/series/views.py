@@ -14,7 +14,10 @@ from django.shortcuts import render
 from django.http import HttpResponse
 
 def nuevaSerie(request):
-	data = getSeries("The Walking Dead")
+	if request.POST.has_key('myS'):
+		nameserie = request.POST['myS']
+	data = getSeries(nameserie)
+	#data = getSeries("The Walking Dead")
 	context = {'title' : 'Inicio', 'ID': data[0][0].text, 'idioma': data[0][1].text, 'nombre': data[0][2].text, 'descripcion': data[0][4].text}
 	return render(request, 'series/NuevaSerie.html', context)
 
