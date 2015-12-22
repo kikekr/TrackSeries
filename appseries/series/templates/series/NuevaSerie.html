@@ -20,21 +20,23 @@
   		<div class="input-group">
 		<form action="{% url 'nueva' %}" method="post">
 		{% csrf_token %}
-		<input type="submit" value=" GO " />
-		<input type="text" class="form-control" placeholder="Search for..." name="myS">
+		<input type="text" class="form-control" placeholder="Search for..." name="myS"> <br><br>
+		<input type="submit" value=" GO " name="butGo"/> <br>
 	</div>
   </div>
   <div style="clear:both;"></div>
+
   <h2 class="sub-header">Resultados</h2>
   <div class="table-responsive">
   	<table class="table table-striped">
         	<thead>
                 	<tr>
-		  	<li> ID: {{ ID }}	
-			<li> Nombre de la serie: {{ nombre }}
-			<li> Idioma: {{ idioma }}
-			<li> Descripcion: {{ descripcion }}
-                	</tr>
+		  	<li> {% if ID %}<b> ID: </b>{{ ID }}{% endif %}
+			<li> {% if nombre %}<b> Nombre de la serie: </b>{{ nombre }}{% endif %}
+			<li> {% if idioma %}<b> Idioma: </b>{{ idioma }}{% endif %}
+			<li> {% if descripcion %}<b> Descripcion: </b>{{ descripcion }}<br><br>{% endif %}
+			<li> {% if ID %}<input type="submit" value=" Añadir " name="add"/> <br>{% endif %}
+		        </tr>
               	</thead>
        	</table>
   </div>
