@@ -4,6 +4,7 @@ import sys
 import APIseries as api
 from django.shortcuts import render
 from series.models import Serie
+import json
 
 def nuevaSerie(request):
 	
@@ -13,14 +14,19 @@ def nuevaSerie(request):
 	if request.POST.has_key('myS'):
 			nameserie = request.POST['myS']
 			data = api.getSeries(nameserie)
-			if len(data) > 0:
-				context = {'title' : 'Inicio', 'ID': data[0][0].text, 'idioma': data[0][1].text, 'nombre': data[0][2].text, 'descripcion': data[0][4].text}
+			myDict = {'title' : 'Inicio', 'data': data}
+						
+			#if len(data) > 0:
+				#context = myDict
+				
+			for i in data:
+				context = {'title' : 'Inicio', 'ID': data[0][0].text, 'idioma': data[0][1].text, 'nombre': data[0][2].text, 'descripcion': data[0][4].text, 'data': data}
+
 
 	if request.POST.has_key('add'):
-		print 'Nueva serie en mis series'
-		s = Serie(nombre='Nombre de la serie', descripcion='Descripcion de la serie', imagen='', genero='Drama', fechaEmision='', estado='Emision')
-		s.save()
-
+		print "Nueva serie"	
+		#s = Serie(nombre='Nombre de la serie', descripcion='Descripcion de la serie', imagen='', genero='Drama', fechaEmision='', estado='Emision')
+		#s.save()
 
 	return render(request, 'series/NuevaSerie.html', context)
 
