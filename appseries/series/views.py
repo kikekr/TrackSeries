@@ -14,14 +14,9 @@ def nuevaSerie(request):
 	if request.POST.has_key('myS'):
 			nameserie = request.POST['myS']
 			data = api.getSeries(nameserie)
-			myDict = {'title' : 'Inicio', 'data': data}
-						
-			#if len(data) > 0:
-				#context = myDict
-				
-			for i in data:
-				context = {'title' : 'Inicio', 'ID': data[0][0].text, 'idioma': data[0][1].text, 'nombre': data[0][2].text, 'descripcion': data[0][4].text, 'data': data}
 
+			if len(data) > 0:
+				context = {'title' : 'Inicio', 'data': data}
 
 	if request.POST.has_key('add'):
 		print "Nueva serie"	

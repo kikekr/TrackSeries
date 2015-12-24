@@ -28,28 +28,19 @@
   <h2 class="sub-header">Resultados</h2>
   <div class="table-responsive">
   	<table class="table table-striped">
-        	<thead>
-            <tr> 
 												
-			<ul>
-			{% for data in data %}
-				{% for data in data %}
-					<li>{{data.text}}</li>
-				{% endfor %}
-				<br>
-				<input type="submit" value=" Añadir " name="add"/>
-				<br><br><br><br>
-			{% endfor %}
-			</ul>
-			
-		  	<li> {% if ID %}<li id="l1"><b> ID: </b>{{ ID }}</li> {% endif %}
-			<li> {% if nombre %}<b> Nombre de la serie: </b>{{ nombre }}{% endif %}
-			<li> {% if idioma %}<b> Idioma: </b>{{ idioma }}{% endif %}
-			<li> {% if descripcion %}<b> Descripcion: </b>{{ descripcion }}<br><br>{% endif %}
-			<li> {% if ID %}<input type="submit" value=" Añadir " name="add"/> <br>{% endif %}
-		    </tr>
-            </thead>
-       	</table>
+	<ul>
+	{% for data in data %}
+		{% for data in data %}
+			<li> {{ data.text }} </li>
+		{% endfor %}
+		<br>
+		<input type="submit" value=" Añadir " name="add"/>
+		<br><br><br><br>
+	{% endfor %}
+	</ul>
+
+    </table>
   </div>
 	
 {% endblock %}
