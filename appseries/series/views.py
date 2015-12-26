@@ -8,7 +8,10 @@ import json
 
 	
 def addSerie(request, identifier):
-	context = {'title' : 'Inicio', 'ID': identifier}	
+	context = {'title' : 'Inicio', 'ID': identifier}
+	# data = api.getSeriesByRemoteID(identifier)
+	# s = Serie(nombre='Nombre de la serie', descripcion='Descripcion de la serie', imagen='', genero='Drama', fechaEmision='', estado='Emision')
+	# s.save()
 	return render(request, 'series/serieanadida.html', context)
 	
 
@@ -23,11 +26,6 @@ def nuevaSerie(request):
 
 			if len(data) > 0:
 				context = {'title' : 'Inicio', 'data': data}
-
-	if request.POST.has_key('add'):
-		print "Nueva serie"	
-		#s = Serie(nombre='Nombre de la serie', descripcion='Descripcion de la serie', imagen='', genero='Drama', fechaEmision='', estado='Emision')
-		#s.save()
 
 	return render(request, 'series/NuevaSerie.html', context)
 
