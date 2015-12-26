@@ -32,11 +32,20 @@
 	<ul>
 	{% for data in data %}
 		{% for data in data %}
-			<li> {{ data.text }} </li>
+			{% if forloop.counter == 1 %} <li> <b>ID:</b></li> {% endif %}
+			{% if forloop.counter == 2 %} <li> <b>Idioma:</b> {{ data.text }} </li> {% endif %}
+			{% if forloop.counter == 3 %} <li> <b>Nombre:</b> {{ data.text }} </li> {% endif %}
+			{% if forloop.counter == 4 %} <li> <b>Imagen:</b> {{ data.text }} </li> {% endif %}
+			{% if forloop.counter == 5 %} <li> <b>Descripcion</b> {{ data.text }} </li> {% endif %} 
 		{% endfor %}
-		<br>
-		<input type="submit" value=" Añadir " name="add"/>
-		<br><br><br><br>
+		{% for data in data %}
+			{% if forloop.counter == 1 %} 
+				<br>
+				{#	<input type="submit" value=" Añadir " name="add" <a href="{% url index %}"></a>	#} 
+				<a href="{% url 'addSerie' data.text %}">Añadir</a>
+				<br><br><br><br>
+			{% endif %}
+		{% endfor %}
 	{% endfor %}
 	</ul>
 

@@ -6,6 +6,12 @@ from django.shortcuts import render
 from series.models import Serie
 import json
 
+	
+def addSerie(request, identifier):
+	context = {'title' : 'Inicio', 'ID': identifier}	
+	return render(request, 'series/serieanadida.html', context)
+	
+
 def nuevaSerie(request):
 	
 	context = {'title' : 'Inicio'}	

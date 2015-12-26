@@ -1,0 +1,130 @@
+{% load staticfiles %}
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <link rel="shortcut icon" type="image/x-icon" href="{% static 'series/images/favicon.ico' %}">
+
+    <title>
+      {% if title %}
+        {{ title }}
+      {% else %}
+        Appseries
+      {% endif %}
+    </title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="{% static 'series/css/bootstrap.min.css' %}" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="{% static 'series/css/dashboard.css' %}" rel="stylesheet">
+
+
+<script>
+	
+	function generateList() {
+
+		var data = [
+		    {'id': 1, 'parentId': 0, 'name': 'Maths'},
+		    {'id': 2, 'parentId': 1, 'name': 'Topologie'},
+		    {'id': 3, 'parentId': 1, 'name': 'Algèbre'},
+		    {'id': 4, 'parentId': 3, 'name': 'Algèbre linéaire'},
+		    {'id': 5, 'parentId': 3, 'name': 'Arithmétique'},
+		    {'id': 6, 'parentId': 5, 'name': 'Thérorème de Bézout'},
+		    {'id': 7, 'parentId': 0, 'name': 'Informatique'},
+		    {'id': 8, 'parentId': 7, 'name': 'C-C++'},
+		    {'id': 9, 'parentId': 8, 'name': 'Les pointeurs'}
+		];
+		
+		var i, item, ref = {}, counts = {};
+		
+		function ul() {return document.createElement('ul');}
+		
+		function li(text) {
+			var e = document.createElement('li');
+			e.appendChild(document.createTextNode(text));
+			return e;
+		}
+		
+		ref[0] = ul();
+		
+		counts[0] = 1;
+		
+		for (i = 0; i < data.length; ++i) {
+			ref[data[i].parentId].appendChild(li(data[i]['name'])); // create <li>
+			ref[data[i].id] = ul(); // assume + create <ul>
+			ref[data[i].parentId].appendChild(ref[data[i].id]);
+			counts[data[i].id] = 0;
+			counts[data[i].parentId] += 1;
+		}
+		
+		for (i in counts) // for every <ul>
+			if (counts[i] === 0) // if it never had anything appened to it
+				ref[i].parentNode.removeChild(ref[i]); // remove it
+
+		document.write("Heelloooo");
+				
+		return ref[0];
+	}
+
+
+
+</script>
+
+  </head>
+
+  <body>
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="/series/">Estadísticas de series</a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav navbar-right">
+            {% if user.is_authenticated %}
+              <li class="dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                  <span class="glyphicon glyphicon-user" aria-hidden="true"></span>
+                  {{ user.username }}
+                  <span class="caret"></span>
+                </a>
+                <ul class="dropdown-menu">
+                  <li><a href="{% url 'logout' %}?next={{ request.path }}">
+                    <span class="glyphicon glyphicon-off" aria-hidden="true"></span> Salir
+                  </a></li>
+                </ul>
+              </li>
+            {% else %}
+              <li><a href="{% url 'login' %}?next={{ request.path }}">Acceder</a></li>
+              <li><a href="/series/register/">Registro</a></li>
+            {% endif %}
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container-fluid">
+      <div class="row">
+        {% block content %}{% endblock %}
+      </div>
+    </div>
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script src="{% static 'series/js/bootstrap.min.js' %}"></script>
+  </body>
+</html>
