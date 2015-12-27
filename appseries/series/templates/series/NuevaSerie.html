@@ -32,7 +32,7 @@
 	<ul>
 	{% for data in data %}
 		{% for data in data %}
-			{% if forloop.counter == 1 %} <li> <b>ID:</b></li> {% endif %}
+			{% if forloop.counter == 1 %} <li> <b>ID:</b>{{ data.text }}</li> {% endif %}
 			{% if forloop.counter == 2 %} <li> <b>Idioma:</b> {{ data.text }} </li> {% endif %}
 			{% if forloop.counter == 3 %} <li> <b>Nombre:</b> {{ data.text }} </li> {% endif %}
 			{% if forloop.counter == 4 %} <li> <b>Imagen:</b> {{ data.text }} </li> {% endif %}

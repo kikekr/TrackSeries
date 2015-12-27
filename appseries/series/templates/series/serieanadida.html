@@ -13,8 +13,12 @@
 
 {% block main %}
 
-  <h1 class="page-header">Serie añadida</h1>
-
-  La serie {{ ID }} ha sido añadida correctamente
+  {% if existe %}
+	    <h1 class="page-header">Error</h1>
+		La serie {{ nombre }} ya existe en la base de datos
+  {% else %}
+		<h1 class="page-header">Serie añadida</h1>
+		La serie {{ nombre }} ha sido añadida correctamente
+  {% endif %}
 
 {% endblock %}

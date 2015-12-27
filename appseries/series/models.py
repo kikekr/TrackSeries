@@ -5,7 +5,7 @@ class Serie(models.Model):
 	descripcion = models.CharField(max_length=500)
 	imagen = models.CharField(max_length=100)
 	genero = models.CharField(max_length=100)
-	fechaEmision = models.CharField(max_length=100)
+	fechaEmision = models.CharField(max_length=100, default="Fecha de emision")
 	estado = models.CharField(max_length=100)
 
 	def __unicode__(self):
