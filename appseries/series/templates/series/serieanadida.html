@@ -1,21 +1,28 @@
 {% extends 'series/with-menu.html' %}
 
 {% block sidebar %}
+  <ul class="nav nav-sidebar">
+    <li class="active"><a href="/series/"><span class="glyphicon glyphicon-th-list" aria-hidden="true"></span> Panel de control</a></li>
+  </ul>
+  
   {% if series_list %}
 	<ul class="nav nav-sidebar">
-		<li><a><b>Series</a></b></li>
+		<li><a href="/series/"><b>Mis series</b></a></li>
 		{% for series_list in series_list %}
 			<li><a href="/series/1">{{ series_list.nombre }}</a></li>
 		{% endfor %}
 	</ul>
-  {% else %}
-    <ul class="nav nav-sidebar">
-		<li><a><b>Series</a></b></li>
-		<li><a href="/series/1">The walking dead</a></li>
-		<li><a href="/series/1">Como conocí a vuestra madre</a></li>
-		<li><a href="/series/1">Breaking bad</a></li>
-	</ul>
   {% endif %}
+  
+	<ul class="nav nav-sidebar">
+		<li><a href="/series/nueva"><b>Añadir serie</b></a></li>
+	</ul>
+	
+	
+	<ul class="nav nav-sidebar">
+		<li><a href="/series/estadisticas"><b>Estadísticas</b></a></li>
+	</ul>
+  
 {% endblock %}
 
 {% block main %}
