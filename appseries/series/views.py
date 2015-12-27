@@ -8,15 +8,16 @@ import json
 
 	
 def addSerie(request, identifier):
+	series_list = Serie.objects.all()
 	api = APIseries()
 	data = api.getSeriesByRemoteID(identifier)
 	
 	try :
 		p = Serie.objects.get(nombre = data[0][16].text)
-		context = {'title' : 'Inicio', 'ID': identifier, 'nombre': data[0][16].text, 'existe': 'true'}
+		context = {'title' : 'Inicio', 'ID': identifier, 'nombre': data[0][16].text, 'series_list': series_list, 'existe': 'true'}
 		
 	except Serie.DoesNotExist :
-		context = {'title' : 'Inicio', 'ID': identifier, 'nombre': data[0][16].text}
+		context = {'title' : 'Inicio', 'ID': identifier, 'nombre': data[0][16].text, 'series_list': series_list}
 		
 		if data[0][2].text is None:
 			s = Serie(nombre = data[0][16].text, descripcion = data[0][11].text, imagen = data[0][20].text, genero = data[0][6].text, fechaEmision = "", estado = data[0][17].text)
@@ -30,7 +31,8 @@ def addSerie(request, identifier):
 
 def nuevaSerie(request):
 	
-	context = {'title' : 'Inicio'}	
+	series_list = Serie.objects.all()
+	context = {'title' : 'Inicio', 'series_list': series_list}	
 	nameserie = ''
 	api = APIseries()
 	
@@ -39,7 +41,7 @@ def nuevaSerie(request):
 			data = api.getSeries(nameserie)
 
 			if len(data) > 0:
-				context = {'title' : 'Inicio', 'data': data}
+				context = {'title' : 'Inicio', 'data': data, 'series_list': series_list}
 
 	return render(request, 'series/NuevaSerie.html', context)
 
@@ -54,8 +56,9 @@ def index(request):
 		return render(request, 'series/index-noauth.html', context)
 
 def estadisticas(request):
-    context = {'title' : 'Estadisticas'}
-    return render(request, 'series/estadisticas.html', context)
+	series_list = Serie.objects.all()
+	context = {'title' : 'Estadisticas', 'series_list': series_list}
+	return render(request, 'series/estadisticas.html', context)
 
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
