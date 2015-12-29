@@ -2,8 +2,33 @@
 
 {% block main %}
     {% if selectedSerie %}
-        Found
+        <div class="container">
+            <div class="row">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <img src="https://thetvdb.com/banners/{{ selectedSerie.imagen }}" class="img-responsive center-block">
+                    </div>
+                    <div class="panel-body">
+                        <span>{{ selectedSerie.descripcion }}</span>
+                    </div>
+                    <table class="table">
+                        <tr>
+                          <td><b>Género</b></td>
+                          <td>{{ selectedSerie.genero }}</td>
+                        </tr>
+                        <tr>
+                          <td><b>Fecha de emisión</b></td>
+                          <td>{{ selectedSerie.fechaEmision }}</td>
+                        </tr>
+                        <tr>
+                          <td><b>Estado</b></td>
+                          <td>{{ selectedSerie.estado }}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
     {% else %}
-        Not found
+        <div class="alert alert-danger" role="alert">Serie no encontrada</div>
     {% endif %}
 {% endblock %}
