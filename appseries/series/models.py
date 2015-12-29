@@ -1,6 +1,7 @@
 from django.db import models
 
 class Serie(models.Model):
+	id = models.AutoField(primary_key=True)
 	nombre = models.CharField(max_length=100)
 	descripcion = models.CharField(max_length=500)
 	imagen = models.CharField(max_length=100)
@@ -10,7 +11,7 @@ class Serie(models.Model):
 
 	def __unicode__(self):
 		return self.nombre
-		
+
 class Capitulo(models.Model):
 	serie = models.ForeignKey(Serie)
 	temporada = models.IntegerField()

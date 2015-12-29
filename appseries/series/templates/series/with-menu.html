@@ -1,8 +1,52 @@
 {% extends 'series/no-menu.html' %}
 
+{% load url from future %}
+
 {% block content %}
   <div class="col-sm-3 col-md-2 sidebar">
-    {% block sidebar %}{% endblock %}
+    <ul class="nav nav-sidebar">
+        {% url 'index' as indexurl %}
+        {% if request and request.path == indexurl %}
+            <li class="active">
+        {% else %}
+            <li>
+        {% endif %}
+        <a href="{% url 'index' %}"><span class="glyphicon glyphicon-th-list" aria-hidden="true"></span> Panel de control</a></li>
+    </ul>
+
+    {% if series %}
+        <ul class="nav nav-sidebar">
+            <li><a><b>Mis series</b></a></li>
+            {% for serie in series %}
+                {% if selectedSerie and serie.id == selectedSerie.id %}
+                    <li class="active">
+                {% else %}
+                    <li>
+                {% endif %}
+                <a href="{% url 'serie' serie.id %}">{{ serie.nombre }}</a></li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    <ul class="nav nav-sidebar">
+        {% url 'nueva' as nuevaurl %}
+        {% if request and request.path == nuevaurl %}
+            <li class="active">
+        {% else %}
+            <li>
+        {% endif %}
+        <a href="{% url 'nueva' %}"><b>Añadir serie</b></a></li>
+    </ul>
+
+    <ul class="nav nav-sidebar">
+        {% url 'estadisticas' as estadisticasurl %}
+        {% if request and request.path == estadisticasurl %}
+            <li class="active">
+        {% else %}
+            <li>
+        {% endif %}
+        <a href="{% url 'estadisticas' %}"><b>Estadísticas</b></a></li>
+    </ul>
   </div>
   <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
     {% block main %}{% endblock %}
