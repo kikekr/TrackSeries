@@ -3,28 +3,34 @@ import requests
 import sys
 from APIseries import APIseries
 from django.shortcuts import render
-from series.models import Serie
+from series.models import Serie, Capitulo
 import json
 
 
 def addSerie(request, identifier):
 	series_list = Serie.objects.all()
 	api = APIseries()
+	
 	data = api.getSeriesByRemoteID(identifier)
+	dataEpisodes = api.getEpisodes(identifier)
 
 	try :
 		p = Serie.objects.get(nombre = data[0][16].text)
-		context = {'title' : 'Inicio', 'ID': identifier, 'nombre': data[0][16].text, 'series_list': series_list, 'existe': 'true'}
+		context = {'title' : 'Inicio', 'ID': identifier, 'nombre': name, 'series_list': series_list, 'existe': 'true'}
 
 	except Serie.DoesNotExist :
-		context = {'title' : 'Inicio', 'ID': identifier, 'nombre': data[0][16].text, 'series_list': series_list}
+		context = {'title' : 'Inicio', 'ID': identifier, 'nombre': name, 'series_list': series_list}
 
-		if data[0][2].text is None:
-			s = Serie(nombre = data[0][16].text, descripcion = data[0][11].text, imagen = data[0][20].text, genero = data[0][6].text, fechaEmision = "", estado = data[0][17].text)
+
+		if airsday is None:
+			s = Serie(nombre = name, descripcion = description, imagen = image, genero = genre, fechaEmision = "", estado = status)
 		else:
-			s = Serie(nombre = data[0][16].text, descripcion = data[0][11].text, imagen = data[0][20].text, genero = data[0][6].text, fechaEmision = data[0][2].text, estado = data[0][17].text)
-
+			s = Serie(nombre = name, descripcion = description, imagen = image, genero = genre, fechaEmision = airsday, estado = status)
+		
 		s.save()
+			
+		for episode in dataEpisodes.findall('Episode'):		
+			s.capitulo_set.create(temporada = episode.find('SeasonNumber').text, numero = episode.find('EpisodeNumber').text, titulo = episode.find('EpisodeName').text)
 
 	return render(request, 'series/serieanadida.html', context)
 

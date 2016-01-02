@@ -23,6 +23,13 @@ class APIseries:
 		if (response.status_code == 200):
 			data = ET.fromstring(response.text.encode('utf-8'))
 			return data
-        
+			
+	def getEpisodes(self, ID):
+		
+		response = requests.get("http://www.thetvdb.com/api/"+self.APIKEY+"/series/"+ID+"/all/es.xml")
+		
+		if (response.status_code == 200):
+			data = ET.fromstring(response.text.encode('utf-8'))
+			return data
 
 
