@@ -6,13 +6,20 @@ from django.shortcuts import render
 from series.models import Serie, Capitulo
 import json
 
-
 def addSerie(request, identifier):
 	series_list = Serie.objects.all()
 	api = APIseries()
 	
 	data = api.getSeriesByRemoteID(identifier)
 	dataEpisodes = api.getEpisodes(identifier)
+	
+	for serie in data.findall('Series'):
+		name = serie.find('SeriesName').text
+		airsday = serie.find('Airs_DayOfWeek').text
+		description = serie.find('Overview').text
+		image = serie.find('banner').text
+		genre = serie.find('Genre').text
+		status = serie.find('Status').text
 
 	try :
 		p = Serie.objects.get(nombre = data[0][16].text)
