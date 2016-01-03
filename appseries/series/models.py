@@ -2,6 +2,7 @@ from django.db import models
 
 class Serie(models.Model):
 	id = models.AutoField(primary_key=True)
+	theTvdbID = models.CharField(max_length=100)
 	nombre = models.CharField(max_length=100)
 	descripcion = models.CharField(max_length=500)
 	imagen = models.CharField(max_length=100)
