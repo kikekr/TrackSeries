@@ -4,7 +4,36 @@ import sys
 from APIseries import APIseries
 from django.shortcuts import render
 from series.models import Serie, Capitulo
-import json
+from django import forms
+from django.contrib.auth.forms import UserCreationForm
+from django.http import HttpResponseRedirect
+
+
+def novedades(request):
+	
+	#Obtenemos la lista de series suscritas
+	series_list = Serie.objects.all()
+	apiSeries = APIseries()
+	
+	#Para cada serie comprobamos la lista de capitulos en la BD y en TheTvdb	
+	for serie in series_list:
+		dataEpisodes = apiSeries.getEpisodes(serie.theTvdbID).findall('Episode')
+		dataBaseEpisodes = serie.capitulo_set.all()
+		
+		# print 'Episodios en TheTvdb: ' + str(len(dataEpisodes))
+		# print 'Episodios en la base de datos: ' + str(len(dataBaseEpisodes))
+		
+		#Comprobamos el numero de episodios
+		if len(dataEpisodes) == len(dataBaseEpisodes):
+			print 'La serie ' + serie.nombre + ' esta actualizada'
+		else:
+			print 'La serie ' + serie.nombre + ' esta desactualizada'
+			
+			# Actualizar la base de datos
+			# Descargar los ficheros torrent de los episodios nuevos
+		
+	return render(request, 'series/novedades.html')
+		
 
 def addSerie(request, identifier):
 	series_list = Serie.objects.all()
@@ -30,9 +59,9 @@ def addSerie(request, identifier):
 
 
 		if airsday is None:
-			s = Serie(nombre = name, descripcion = description, imagen = image, genero = genre, fechaEmision = "", estado = status)
+			s = Serie(nombre = name, theTvdbID = identifier, descripcion = description, imagen = image, genero = genre, fechaEmision = "", estado = status)
 		else:
-			s = Serie(nombre = name, descripcion = description, imagen = image, genero = genre, fechaEmision = airsday, estado = status)
+			s = Serie(nombre = name, theTvdbID = identifier, descripcion = description, imagen = image, genero = genre, fechaEmision = airsday, estado = status)
 		
 		s.save()
 			
@@ -83,10 +112,6 @@ def estadisticas(request):
 	series = Serie.objects.all()
 	context = {'title' : 'Estadisticas', 'series': series, 'request': request}
 	return render(request, 'series/estadisticas.html', context)
-
-from django import forms
-from django.contrib.auth.forms import UserCreationForm
-from django.http import HttpResponseRedirect
 
 def register(request):
     context = { 'form' : UserCreationForm() }
