@@ -1,13 +1,11 @@
-from xml.etree import ElementTree as ET
+import json
 import requests
-import sys
 
-class APIfreegeoip:
-        
-	def getLocationByIP(self, IP):
+def getLocationByIP(IP):
+    response = requests.get("https://freegeoip.net/json/" + IP)
 
-		response = requests.get("https://freegeoip.net/xml/" + IP)
-
-		if (response.status_code == 200):
-			data = ET.fromstring(response.text.encode('utf-8'))
-			return data
+    if (response.status_code == 200):
+        data = json.loads(response.text.encode('utf-8'))
+        return data
+    else:
+        return None
