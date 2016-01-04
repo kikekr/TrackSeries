@@ -19,3 +19,4 @@ appseries/series/urls.py~
 appseries/series/views.py~
 appseries/series/migrations
 appseries/series/APIseries.pyc
+appseries/series/APIfreegeoip.pyc
