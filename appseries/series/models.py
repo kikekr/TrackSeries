@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from django.db import models
 
 class Serie(models.Model):
@@ -18,6 +20,12 @@ class Capitulo(models.Model):
 	temporada = models.IntegerField()
 	numero = models.IntegerField()
 	titulo = models.CharField(max_length=100)
+	"""
+	El estado se usa para indicar en qué estado se encuentra la recolección de datos a través de la descarga
+	0: No hay información disponible
+	1: En proceso de descarga
+	2: Información
+	"""
 	estado = models.IntegerField()
 
 	def __unicode__(self):
