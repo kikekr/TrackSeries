@@ -50,24 +50,44 @@ def addSerie(request, identifier):
 		image = serie.find('banner').text
 		genre = serie.find('Genre').text
 		status = serie.find('Status').text
-
+		
+		if name is None:
+			name = 'None'
+		if airsday is None:
+			airsday = 'None'		
+		if description is None:
+			description = 'None'
+		if image is None:
+			image = 'None'		
+		if genre is None:
+			genre = 'None'
+		if status is None:
+			status = 'None'					
+					
 	try :
 		p = Serie.objects.get(nombre = data[0][16].text)
 		context = {'title' : 'Inicio', 'ID': identifier, 'nombre': name, 'series_list': series_list, 'existe': 'true'}
 
 	except Serie.DoesNotExist :
+		
 		context = {'title' : 'Inicio', 'ID': identifier, 'nombre': name, 'series_list': series_list}
-
-
-		if airsday is None:
-			s = Serie(nombre = name, theTvdbID = identifier, descripcion = description, imagen = image, genero = genre, fechaEmision = "", estado = status)
-		else:
-			s = Serie(nombre = name, theTvdbID = identifier, descripcion = description, imagen = image, genero = genre, fechaEmision = airsday, estado = status)
-
+		s = Serie(nombre = name, theTvdbID = identifier, descripcion = description, imagen = image, genero = genre, fechaEmision = airsday, estado = status)
 		s.save()
 
 		for episode in dataEpisodes.findall('Episode'):
-			s.capitulo_set.create(temporada = episode.find('SeasonNumber').text, numero = episode.find('EpisodeNumber').text, titulo = episode.find('EpisodeName').text, estado = 0)
+			
+			episodename = episode.find('EpisodeName').text
+			episodenumber = episode.find('EpisodeNumber').text
+			seasonnumber = episode.find('SeasonNumber').text
+			
+			if episodename is None:
+					episodename = 'None'
+			if episodenumber is None:
+					episodenumber = 9999
+			if seasonnumber is None:
+					seasonnumber = 9999
+					
+			s.capitulo_set.create(temporada = seasonnumber, numero = episodenumber, titulo = episodename, estado = 0)
 
 	return render(request, 'series/serieanadida.html', context)
 
