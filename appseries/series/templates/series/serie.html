@@ -46,7 +46,7 @@
                                             {% if episode.estado == 1 %}
                                                 <span class="glyphicon glyphicon-transfer" aria-hidden="true"> Análisis en curso</span>
                                             {% elif episode.estado == 2 %}
-                                                <a href="{% url 'estadisticas' show.id %}"><span class="glyphicon glyphicon-stats" aria-hidden="true"> Ver estadísticas</span></a>
+                                                <a href="{% url 'estadisticas' show.id episode.temporada episode.numero %}"><span class="glyphicon glyphicon-stats" aria-hidden="true"> Ver estadísticas</span></a>
                                             {% else %}
                                                 <span class="glyphicon glyphicon-ban-circle" aria-hidden="true"> No hay datos disponibles</span>
                                             {% endif %}

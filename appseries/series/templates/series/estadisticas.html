@@ -1,8 +1,14 @@
 {% extends 'series/with-menu.html' %}
 
 {% block main %}
-  <h1 class="page-header">Resultados por país</h1>
+  <h1 class="page-header">{{ show }} - {{ episode }}</h1>
 
+  <h2 class="page-header">IP Dump</h2>
+  {% for ip in ipinfo %}
+    {{ ip }}
+  {% endfor %}
+
+  <h2 class="page-header">Resultados por país</h2>
   <div class="table-responsive">
     <table class="table table-striped">
       <thead>

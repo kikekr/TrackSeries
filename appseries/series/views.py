@@ -2,8 +2,9 @@ from xml.etree import ElementTree as ET
 import requests
 import sys
 from APIseries import APIseries
+from APIfreegeoip import getLocationByIP
 from django.shortcuts import render, redirect
-from series.models import Serie, Capitulo
+from series.models import Capitulo, IPDescarga, Serie
 from django import forms
 from django.db.models import Max
 from django.contrib.auth.forms import UserCreationForm
@@ -50,43 +51,43 @@ def addSerie(request, identifier):
 		image = serie.find('banner').text
 		genre = serie.find('Genre').text
 		status = serie.find('Status').text
-		
+
 		if name is None:
 			name = 'None'
 		if airsday is None:
-			airsday = 'None'		
+			airsday = 'None'
 		if description is None:
 			description = 'None'
 		if image is None:
-			image = 'None'		
+			image = 'None'
 		if genre is None:
 			genre = 'None'
 		if status is None:
-			status = 'None'					
-					
+			status = 'None'
+
 	try :
 		p = Serie.objects.get(nombre = data[0][16].text)
 		context = {'title' : 'Inicio', 'ID': identifier, 'nombre': name, 'series_list': series_list, 'existe': 'true'}
 
 	except Serie.DoesNotExist :
-		
+
 		context = {'title' : 'Inicio', 'ID': identifier, 'nombre': name, 'series_list': series_list}
 		s = Serie(nombre = name, theTvdbID = identifier, descripcion = description, imagen = image, genero = genre, fechaEmision = airsday, estado = status)
 		s.save()
 
 		for episode in dataEpisodes.findall('Episode'):
-			
+
 			episodename = episode.find('EpisodeName').text
 			episodenumber = episode.find('EpisodeNumber').text
 			seasonnumber = episode.find('SeasonNumber').text
-			
+
 			if episodename is None:
 					episodename = 'None'
 			if episodenumber is None:
 					episodenumber = 9999
 			if seasonnumber is None:
 					seasonnumber = 9999
-					
+
 			s.capitulo_set.create(temporada = seasonnumber, numero = episodenumber, titulo = episodename, estado = 0)
 
 	return render(request, 'series/serieanadida.html', context)
@@ -138,14 +139,23 @@ def index(request):
 	else:
 		return render(request, 'series/index-noauth.html', context)
 
-def estadisticas(request, selectedId):
+def estadisticas(request, showId, seasonId, episodeId):
 	series = Serie.objects.all()
 
 	try:
-		show = Serie.objects.get(id=int(selectedId))
-		context = {'title' : show.nombre, 'show' : show, 'series': series, 'request' : request}
+		show = Serie.objects.get(id=int(showId))
+		episode = Capitulo.objects.get(serie=int(showId), temporada=int(seasonId), numero=int(episodeId))
+		ips = IPDescarga.objects.filter(capitulo=episode.id)
+
+		ipinfo = []
+		for ip in ips:
+			ipinfo.append(getLocationByIP(ip.ip))
+
+		context = {'title' : show.nombre, 'show' : show, 'episode': episode, 'ipinfo': ipinfo, 'series': series, 'request' : request}
 
 	except Serie.DoesNotExist:
+		context = {'title' : "Not found", 'series': series, 'request' : request}
+	except Capitulo.DoesNotExist:
 		context = {'title' : "Not found", 'series': series, 'request' : request}
 
 	return render(request, 'series/estadisticas.html', context)
