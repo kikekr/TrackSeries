@@ -2,7 +2,7 @@ from xml.etree import ElementTree as ET
 import requests
 import sys
 from APIseries import APIseries
-from APIfreegeoip import getLocationByIP
+from APIfreegeoip import getLocationByList
 from django.shortcuts import render, redirect
 from series.models import Capitulo, IPDescarga, Serie
 from django import forms
@@ -147,9 +147,7 @@ def estadisticas(request, showId, seasonId, episodeId):
 		episode = Capitulo.objects.get(serie=int(showId), temporada=int(seasonId), numero=int(episodeId))
 		ips = IPDescarga.objects.filter(capitulo=episode.id)
 
-		ipinfo = []
-		for ip in ips:
-			ipinfo.append(getLocationByIP(ip.ip))
+		ipinfo = getLocationByList(ips)
 
 		context = {'title' : show.nombre, 'show' : show, 'episode': episode, 'ipinfo': ipinfo, 'series': series, 'request' : request}
 
