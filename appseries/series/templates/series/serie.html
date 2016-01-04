@@ -1,30 +1,49 @@
 {% extends 'series/with-menu.html' %}
 
 {% block main %}
-    {% if selectedSerie %}
+    {% if show %}
         <div class="container">
             <div class="row">
                 <div class="panel panel-default">
                     <div class="panel-heading">
-                        <img src="https://thetvdb.com/banners/{{ selectedSerie.imagen }}" class="img-responsive center-block">
+                        <img src="https://thetvdb.com/banners/{{ show.imagen }}" class="img-responsive center-block">
                     </div>
                     <div class="panel-body">
-                        <span>{{ selectedSerie.descripcion }}</span>
+                        <span>{{ show.descripcion }}</span>
                     </div>
                     <table class="table">
                         <tr>
                           <td><b>Género</b></td>
-                          <td>{{ selectedSerie.genero }}</td>
+                          <td>{{ show.genero }}</td>
                         </tr>
                         <tr>
                           <td><b>Fecha de emisión</b></td>
-                          <td>{{ selectedSerie.fechaEmision }}</td>
+                          <td>{{ show.fechaEmision }}</td>
                         </tr>
                         <tr>
                           <td><b>Estado</b></td>
-                          <td>{{ selectedSerie.estado }}</td>
+                          <td>{{ show.estado }}</td>
                         </tr>
+                        <tr><td></td></tr>
                     </table>
+                    {% for season, episodes in seasons.items %}
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Temporada {{ season }}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for episode in episodes %}
+                                    <tr>
+                                        <td><b>{{ episode.titulo }}</b></td>
+                                        <td>{{ episode.estado }}</td>
+                                    </tr>
+                                {% endfor %}
+                                <tr><td></td></tr>
+                            </tbody>
+                        </table>
+                    {% endfor %}
                 </div>
             </div>
         </div>

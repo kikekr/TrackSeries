@@ -5,43 +5,44 @@ from APIseries import APIseries
 from django.shortcuts import render
 from series.models import Serie, Capitulo
 from django import forms
+from django.db.models import Max
 from django.contrib.auth.forms import UserCreationForm
 from django.http import HttpResponseRedirect
 
 
 def novedades(request):
-	
+
 	#Obtenemos la lista de series suscritas
 	series_list = Serie.objects.all()
 	apiSeries = APIseries()
-	
-	#Para cada serie comprobamos la lista de capitulos en la BD y en TheTvdb	
+
+	#Para cada serie comprobamos la lista de capitulos en la BD y en TheTvdb
 	for serie in series_list:
 		dataEpisodes = apiSeries.getEpisodes(serie.theTvdbID).findall('Episode')
 		dataBaseEpisodes = serie.capitulo_set.all()
-		
+
 		# print 'Episodios en TheTvdb: ' + str(len(dataEpisodes))
 		# print 'Episodios en la base de datos: ' + str(len(dataBaseEpisodes))
-		
+
 		#Comprobamos el numero de episodios
 		if len(dataEpisodes) == len(dataBaseEpisodes):
 			print 'La serie ' + serie.nombre + ' esta actualizada'
 		else:
 			print 'La serie ' + serie.nombre + ' esta desactualizada'
-			
+
 			# Actualizar la base de datos
 			# Descargar los ficheros torrent de los episodios nuevos
-		
+
 	return render(request, 'series/novedades.html')
-		
+
 
 def addSerie(request, identifier):
 	series_list = Serie.objects.all()
 	api = APIseries()
-	
+
 	data = api.getSeriesByRemoteID(identifier)
 	dataEpisodes = api.getEpisodes(identifier)
-	
+
 	for serie in data.findall('Series'):
 		name = serie.find('SeriesName').text
 		airsday = serie.find('Airs_DayOfWeek').text
@@ -62,10 +63,10 @@ def addSerie(request, identifier):
 			s = Serie(nombre = name, theTvdbID = identifier, descripcion = description, imagen = image, genero = genre, fechaEmision = "", estado = status)
 		else:
 			s = Serie(nombre = name, theTvdbID = identifier, descripcion = description, imagen = image, genero = genre, fechaEmision = airsday, estado = status)
-		
+
 		s.save()
-			
-		for episode in dataEpisodes.findall('Episode'):		
+
+		for episode in dataEpisodes.findall('Episode'):
 			s.capitulo_set.create(temporada = episode.find('SeasonNumber').text, numero = episode.find('EpisodeNumber').text, titulo = episode.find('EpisodeName').text)
 
 	return render(request, 'series/serieanadida.html', context)
@@ -90,10 +91,17 @@ def nuevaSerie(request):
 def serie(request, selectedId):
 	series = Serie.objects.all()
 
-	query = Serie.objects.filter(id=int(selectedId))
-	if len(query) > 0:
-		context = {'title' : query[0].nombre, 'selectedSerie' : query[0], 'series': series, 'request' : request}
-	else:
+	try:
+		show = Serie.objects.get(id=int(selectedId))
+		countSeasons = Capitulo.objects.filter(serie=int(selectedId)).aggregate(count=Max('temporada'))['count']
+
+		seasons = {}
+		for i in xrange(1, countSeasons):
+			seasons[i] = Capitulo.objects.filter(serie=int(selectedId), temporada=i)
+
+		context = {'title' : show.nombre, 'show' : show, "seasons": seasons, 'series': series, 'request' : request}
+
+	except Serie.DoesNotExist:
 		context = {'title' : "Not found", 'series': series, 'request' : request}
 
 	return render(request, 'series/serie.html', context)
