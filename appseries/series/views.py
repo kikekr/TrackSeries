@@ -95,11 +95,14 @@ def serie(request, selectedId):
 		show = Serie.objects.get(id=int(selectedId))
 		countSeasons = Capitulo.objects.filter(serie=int(selectedId)).aggregate(count=Max('temporada'))['count']
 
-		seasons = {}
-		for i in xrange(1, countSeasons):
-			seasons[i] = Capitulo.objects.filter(serie=int(selectedId), temporada=i)
+		if countSeasons:
+			seasons = {}
+			for i in xrange(1, int(countSeasons)):
+				seasons[i] = Capitulo.objects.filter(serie=int(selectedId), temporada=i)
+			context = {'title' : show.nombre, 'show' : show, "seasons": seasons, 'series': series, 'request' : request}
 
-		context = {'title' : show.nombre, 'show' : show, "seasons": seasons, 'series': series, 'request' : request}
+		else:
+			context = {'title' : show.nombre, 'show' : show, 'series': series, 'request' : request}
 
 	except Serie.DoesNotExist:
 		context = {'title' : "Not found", 'series': series, 'request' : request}
@@ -116,9 +119,16 @@ def index(request):
 	else:
 		return render(request, 'series/index-noauth.html', context)
 
-def estadisticas(request):
+def estadisticas(request, selectedId):
 	series = Serie.objects.all()
-	context = {'title' : 'Estadisticas', 'series': series, 'request': request}
+
+	try:
+		show = Serie.objects.get(id=int(selectedId))
+		context = {'title' : show.nombre, 'show' : show, 'series': series, 'request' : request}
+
+	except Serie.DoesNotExist:
+		context = {'title' : "Not found", 'series': series, 'request' : request}
+
 	return render(request, 'series/estadisticas.html', context)
 
 def register(request):
