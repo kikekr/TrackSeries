@@ -18,6 +18,12 @@ class Capitulo(models.Model):
 	temporada = models.IntegerField()
 	numero = models.IntegerField()
 	titulo = models.CharField(max_length=100)
+	estado = models.IntegerField()
 
 	def __unicode__(self):
 		return self.titulo
+
+class IPDescarga(models.Model):
+	capitulo = models.ForeignKey(Capitulo)
+	ip = models.CharField(max_length=15)
+	hora = models.IntegerField()
