@@ -2,7 +2,7 @@ from xml.etree import ElementTree as ET
 import requests
 import sys
 from APIseries import APIseries
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from series.models import Serie, Capitulo
 from django import forms
 from django.db.models import Max
@@ -110,7 +110,6 @@ def serie(request, selectedId):
 	return render(request, 'series/serie.html', context)
 
 def index(request):
-
 	series = Serie.objects.all()
 	context = {'title' : 'Inicio', 'request' : request, 'series': series}
 
@@ -130,6 +129,28 @@ def estadisticas(request, selectedId):
 		context = {'title' : "Not found", 'series': series, 'request' : request}
 
 	return render(request, 'series/estadisticas.html', context)
+
+def eliminar(request, selectedId):
+	series = Serie.objects.all()
+
+	try:
+		show = Serie.objects.get(id=int(selectedId))
+
+		if request.POST.has_key('butAceptar'):
+			show.delete()
+
+			return redirect('index')
+		elif request.POST.has_key('butCancelar'):
+			return redirect('index')
+		else:
+			page = 'series/eliminar.html'
+			context = {'title' : show.nombre, 'show' : show, 'series': series, 'request' : request}
+
+	except Serie.DoesNotExist:
+		page = 'series/serie.html'
+		context = {'title' : "Not found", 'series': series, 'request' : request}
+
+	return render(request, page, context)
 
 def register(request):
     context = { 'form' : UserCreationForm() }
