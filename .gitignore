@@ -18,3 +18,4 @@ appseries/series/templates/series/nuevaserie.html~
 appseries/series/urls.py~
 appseries/series/views.py~
 appseries/series/migrations
+appseries/series/APIseries.pyc
