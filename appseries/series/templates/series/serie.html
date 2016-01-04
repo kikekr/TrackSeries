@@ -24,10 +24,15 @@
                           <td><b>Estado</b></td>
                           <td>{{ show.estado }}</td>
                         </tr>
+                        <tr>
+                          <td><b>Enlace a TheTVDB</b></td>
+                          <td><a href="https://thetvdb.com/index.php?tab=series&id={{ show.theTvdbID }}">Enlace</a></td>
+                        </tr>
                         <tr><td></td></tr>
                     </table>
-                    {% for season, episodes in seasons.items %}
+                    {% if seasons %}
                         <table class="table">
+                        {% for season, episodes in seasons.items %}
                             <thead>
                                 <tr>
                                     <th>Temporada {{ season }}</th>
@@ -37,13 +42,22 @@
                                 {% for episode in episodes %}
                                     <tr>
                                         <td><b>{{ episode.titulo }}</b></td>
-                                        <td>{{ episode.estado }}</td>
+                                        <td>
+                                            {% if episode.estado == 1 %}
+                                                <span class="glyphicon glyphicon-transfer" aria-hidden="true"> Análisis en curso</span>
+                                            {% elif episode.estado == 2 %}
+                                                <a href="{% url 'estadisticas' show.id %}"><span class="glyphicon glyphicon-stats" aria-hidden="true"> Ver estadísticas</span></a>
+                                            {% else %}
+                                                <span class="glyphicon glyphicon-ban-circle" aria-hidden="true"> No hay datos disponibles</span>
+                                            {% endif %}
+                                        </td>
                                     </tr>
                                 {% endfor %}
                                 <tr><td></td></tr>
                             </tbody>
+                        {% endfor %}
                         </table>
-                    {% endfor %}
+                    {% endif %}
                 </div>
             </div>
         </div>
