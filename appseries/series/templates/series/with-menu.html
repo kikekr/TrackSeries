@@ -16,7 +16,7 @@
         <ul class="nav nav-sidebar">
             <li><a><b>Mis series</b></a></li>
             {% for serie in series %}
-                {% if selectedSerie and serie.id == selectedSerie.id %}
+                {% if show and serie.id == show.id %}
                     <li class="active">
                 {% else %}
                     <li>
@@ -34,16 +34,6 @@
             <li>
         {% endif %}
         <a href="{% url 'nueva' %}"><b>Añadir serie</b></a></li>
-    </ul>
-
-    <ul class="nav nav-sidebar">
-        {% url 'estadisticas' as estadisticasurl %}
-        {% if request and request.path == estadisticasurl %}
-            <li class="active">
-        {% else %}
-            <li>
-        {% endif %}
-        <a href="{% url 'estadisticas' %}"><b>Estadísticas</b></a></li>
     </ul>
   </div>
   <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
