@@ -67,7 +67,7 @@ def addSerie(request, identifier):
 		s.save()
 
 		for episode in dataEpisodes.findall('Episode'):
-			s.capitulo_set.create(temporada = episode.find('SeasonNumber').text, numero = episode.find('EpisodeNumber').text, titulo = episode.find('EpisodeName').text)
+			s.capitulo_set.create(temporada = episode.find('SeasonNumber').text, numero = episode.find('EpisodeNumber').text, titulo = episode.find('EpisodeName').text, estado = 0)
 
 	return render(request, 'series/serieanadida.html', context)
 
