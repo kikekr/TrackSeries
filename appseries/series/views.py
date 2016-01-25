@@ -94,7 +94,6 @@ def addSerie(request, identifier):
 
 
 def nuevaSerie(request):
-
 	series = Serie.objects.all()
 	context = {'title' : 'Inicio', 'series': series, 'request' : request}
 	nameserie = ''

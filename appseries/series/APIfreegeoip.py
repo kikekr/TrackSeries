@@ -2,6 +2,27 @@ import json
 import threading
 import requests
 
+from series.models import CachedLocation
+
+def requestGeoIp(IP):
+    response = requests.get("https://freegeoip.net/json/" + IP)
+
+    if (response.status_code == 200):
+        data = json.loads(response.text.encode('utf-8'))
+        return data
+    else:
+        return None
+
+def resolveLocation(ipAddress):
+    try:
+        query = CachedLocation.objects.get(ip=ipAddress)
+        return json.loads(query.location)
+    except CachedLocation.DoesNotExist:
+        jsResult = requestGeoIp(ipAddress)
+        cachedLoc = CachedLocation(ip=ipAddress, location=json.dumps(jsResult))
+        cachedLoc.save()
+        return jsResult
+
 def getLocationByList(IPList):
     numThreads = 4
     ipPerThread = len(IPList)/numThreads
@@ -12,7 +33,7 @@ def getLocationByList(IPList):
         temp = []
 
         for ip in smallIpList:
-            info = getLocationByIP(ip)
+            info = resolveLocation(ip)
             temp.append(info)
 
         resultList.extend(temp)
@@ -27,12 +48,3 @@ def getLocationByList(IPList):
         t.join()
 
     return IPInfo
-
-def getLocationByIP(IP):
-    response = requests.get("https://freegeoip.net/json/" + IP)
-
-    if (response.status_code == 200):
-        data = json.loads(response.text.encode('utf-8'))
-        return data
-    else:
-        return None
