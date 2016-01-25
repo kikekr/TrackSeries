@@ -3,11 +3,6 @@
 {% block main %}
   <h1 class="page-header">{{ show }} - {{ episode }}</h1>
 
-  <h2 class="page-header">IP Dump</h2>
-  {% for ip in ipinfo %}
-    {{ ip }}<br>
-  {% endfor %}
-
   <h2 class="page-header">Resultados por país</h2>
   <div class="table-responsive">
     <table class="table table-striped">
@@ -18,14 +13,12 @@
         </tr>
       </thead>
       <tbody>
-        <tr>
-          <td>Estados Unidos</td>
-          <td>530</td>
-        </tr>
-        <tr>
-          <td>España </td>
-          <td>726</td>
-        </tr>
+        {% for key,value in cnt_downloads.items %}
+          <tr>
+            <td>{{ key }}</td>
+            <td>{{ value }}</td>
+          </tr>
+        {% endfor %}
       </tbody>
     </table>
   </div>

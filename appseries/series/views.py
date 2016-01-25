@@ -9,7 +9,13 @@ from django import forms
 from django.db.models import Max
 from django.contrib.auth.forms import UserCreationForm
 from django.http import HttpResponseRedirect
+import pandas as pd
 
+# import the logging library
+import logging
+
+# Get an instance of a logger
+logger = logging.getLogger("django")
 
 def novedades(request):
 
@@ -147,8 +153,11 @@ def estadisticas(request, showId, seasonId, episodeId):
 		ips = IPDescarga.objects.filter(capitulo=episode.id)
 
 		ipinfo = getLocationByList(ips)
+		df = pd.DataFrame(ipinfo)
+		cnt = df.groupby(by="country_name")['ip'].count().to_dict()
+		logger.info(df.to_string())
 
-		context = {'title' : show.nombre, 'show' : show, 'episode': episode, 'ipinfo': ipinfo, 'series': series, 'request' : request}
+		context = {'title' : show.nombre, 'show' : show, 'episode': episode, 'cnt_downloads': cnt, 'df_downloads': df, 'series': series, 'request' : request}
 
 	except Serie.DoesNotExist:
 		context = {'title' : "Not found", 'series': series, 'request' : request}
