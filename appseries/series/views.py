@@ -10,6 +10,7 @@ from django.db.models import Max
 from django.contrib.auth.forms import UserCreationForm
 from django.http import HttpResponseRedirect
 import pandas as pd
+from django.contrib import auth
 
 # import the logging library
 import logging
@@ -20,7 +21,11 @@ logger = logging.getLogger("django")
 def novedades(request):
 
 	#Obtenemos la lista de series suscritas
-	series_list = Serie.objects.all()
+	seriesByUser = UserSerie.objects.filter(user = request.user)
+	series_list = []
+	for relation in seriesByUser:
+		series_list.append(relation.serie)
+		
 	apiSeries = APIseries()
 
 	#Para cada serie comprobamos la lista de capitulos en la BD y en TheTvdb
@@ -44,9 +49,13 @@ def novedades(request):
 
 
 def addSerie(request, identifier):
-	series_list = Serie.objects.all()
-	api = APIseries()
 
+	seriesByUser = UserSerie.objects.filter(user = request.user)
+	series_list = []
+	for relation in seriesByUser:
+		series_list.append(relation.serie)
+		
+	api = APIseries()
 	data = api.getSeriesByRemoteID(identifier)
 	dataEpisodes = api.getEpisodes(identifier)
 
@@ -72,7 +81,7 @@ def addSerie(request, identifier):
 			status = 'None'
 
 	try :
-		tryingUserSerie = UserSerie.objects.get(user = request.user, serie = Serie.objects.get(theTvdbID = identifier))
+		tryingUserSerie = UserSerie.objects.get(user = auth.get_user(request), serie = Serie.objects.get(theTvdbID = identifier))
 		context = {'title' : 'Inicio', 'ID': identifier, 'nombre': name, 'series_list': series_list, 'existe': 'true'}
 	
 		
@@ -98,19 +107,24 @@ def addSerie(request, identifier):
 			Serie.objects.get(theTvdbID = identifier).capitulo_set.create(temporada = seasonnumber, numero = episodenumber, titulo = episodename, estado = 0)
 			
 
-		us = UserSerie(user = request.user, serie = Serie.objects.get(theTvdbID = identifier))
+		us = UserSerie(user = auth.get_user(request), serie = Serie.objects.get(theTvdbID = identifier))
 		us.save()
 
 	except UserSerie.DoesNotExist :
 
 		context = {'title' : 'Inicio', 'ID': identifier, 'nombre': name, 'series_list': series_list}
-		us = UserSerie(user = request.user, serie = Serie.objects.get(theTvdbID = identifier))
+		us = UserSerie(user = auth.get_user(request), serie = Serie.objects.get(theTvdbID = identifier))
 		us.save()
 
 	return render(request, 'series/serieanadida.html', context)
 
 def nuevaSerie(request):
-	series = Serie.objects.all()
+
+	seriesByUser = UserSerie.objects.filter(user = auth.get_user(request))
+	series = []
+	for relation in seriesByUser:
+		series.append(relation.serie)
+		
 	context = {'title' : 'Inicio', 'series': series, 'request' : request}
 	nameserie = ''
 	api = APIseries()
@@ -125,7 +139,11 @@ def nuevaSerie(request):
 	return render(request, 'series/NuevaSerie.html', context)
 
 def serie(request, selectedId):
-	series = Serie.objects.all()
+
+	seriesByUser = UserSerie.objects.filter(user = auth.get_user(request))
+	series = []
+	for relation in seriesByUser:
+		series.append(relation.serie)
 
 	try:
 		show = Serie.objects.get(id=int(selectedId))
@@ -146,19 +164,25 @@ def serie(request, selectedId):
 	return render(request, 'series/serie.html', context)
 
 
-# Modificar para que muestre solo las series del usuario autenticado
 def index(request):
-	series = Serie.objects.all()
-	context = {'title' : 'Inicio', 'request' : request, 'series': series}
-
+	
 	if request.user.is_authenticated():
+		seriesByUser = UserSerie.objects.filter(user = auth.get_user(request))
+		series = []
+		for relation in seriesByUser:
+			series.append(relation.serie)
+			
+		context = {'title' : 'Inicio', 'request' : request, 'series': series}
 		return render(request, 'series/index-auth.html', context)
+		
 	else:
+		context = {'title' : 'Inicio', 'request' : request}
 		return render(request, 'series/index-noauth.html', context)
 
 def estadisticas(request, showId, seasonId, episodeId):
+	
 	series = Serie.objects.all()
-
+	
 	try:
 		show = Serie.objects.get(id=int(showId))
 		episode = Capitulo.objects.get(serie=int(showId), temporada=int(seasonId), numero=int(episodeId))
