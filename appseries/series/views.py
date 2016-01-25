@@ -4,7 +4,7 @@ import sys
 from APIseries import APIseries
 from APIfreegeoip import getLocationByList
 from django.shortcuts import render, redirect
-from series.models import Capitulo, IPDescarga, Serie
+from series.models import Capitulo, IPDescarga, Serie, UserSerie
 from django import forms
 from django.db.models import Max
 from django.contrib.auth.forms import UserCreationForm
@@ -72,15 +72,16 @@ def addSerie(request, identifier):
 			status = 'None'
 
 	try :
-		p = Serie.objects.get(nombre = data[0][16].text)
+		tryingUserSerie = UserSerie.objects.get(user = request.user, serie = Serie.objects.get(theTvdbID = identifier))
 		context = {'title' : 'Inicio', 'ID': identifier, 'nombre': name, 'series_list': series_list, 'existe': 'true'}
-
+	
+		
 	except Serie.DoesNotExist :
-
+			
 		context = {'title' : 'Inicio', 'ID': identifier, 'nombre': name, 'series_list': series_list}
 		s = Serie(nombre = name, theTvdbID = identifier, descripcion = description, imagen = image, genero = genre, fechaEmision = airsday, estado = status)
 		s.save()
-
+		
 		for episode in dataEpisodes.findall('Episode'):
 
 			episodename = episode.find('EpisodeName').text
@@ -94,10 +95,19 @@ def addSerie(request, identifier):
 			if seasonnumber is None:
 					seasonnumber = 9999
 
-			s.capitulo_set.create(temporada = seasonnumber, numero = episodenumber, titulo = episodename, estado = 0)
+			Serie.objects.get(theTvdbID = identifier).capitulo_set.create(temporada = seasonnumber, numero = episodenumber, titulo = episodename, estado = 0)
+			
+
+		us = UserSerie(user = request.user, serie = Serie.objects.get(theTvdbID = identifier))
+		us.save()
+
+	except UserSerie.DoesNotExist :
+
+		context = {'title' : 'Inicio', 'ID': identifier, 'nombre': name, 'series_list': series_list}
+		us = UserSerie(user = request.user, serie = Serie.objects.get(theTvdbID = identifier))
+		us.save()
 
 	return render(request, 'series/serieanadida.html', context)
-
 
 def nuevaSerie(request):
 	series = Serie.objects.all()
@@ -135,6 +145,8 @@ def serie(request, selectedId):
 
 	return render(request, 'series/serie.html', context)
 
+
+# Modificar para que muestre solo las series del usuario autenticado
 def index(request):
 	series = Serie.objects.all()
 	context = {'title' : 'Inicio', 'request' : request, 'series': series}
@@ -166,6 +178,7 @@ def estadisticas(request, showId, seasonId, episodeId):
 
 	return render(request, 'series/estadisticas.html', context)
 
+# Modificar para que este metodo elimine solo las relaciones Serie-Usuario
 def eliminar(request, selectedId):
 	series = Serie.objects.all()
 

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from django.db import models
+from django.contrib.auth.models import User
 
 class Serie(models.Model):
 	id = models.AutoField(primary_key=True)
@@ -39,3 +40,7 @@ class IPDescarga(models.Model):
 class CachedLocation(models.Model):
 	ip = models.CharField(primary_key=True, max_length=15)
 	location = models.CharField(max_length=15)
+	
+class UserSerie(models.Model):
+	user = models.ForeignKey(User)
+	serie = models.ForeignKey(Serie)
