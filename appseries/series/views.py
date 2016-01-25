@@ -181,7 +181,10 @@ def index(request):
 
 def estadisticas(request, showId, seasonId, episodeId):
 	
-	series = Serie.objects.all()
+	seriesByUser = UserSerie.objects.filter(user = auth.get_user(request))
+	series = []
+	for relation in seriesByUser:
+		series.append(relation.serie)
 	
 	try:
 		show = Serie.objects.get(id=int(showId))
@@ -202,12 +205,15 @@ def estadisticas(request, showId, seasonId, episodeId):
 
 	return render(request, 'series/estadisticas.html', context)
 
-# Modificar para que este metodo elimine solo las relaciones Serie-Usuario
 def eliminar(request, selectedId):
-	series = Serie.objects.all()
+
+	seriesByUser = UserSerie.objects.filter(user = auth.get_user(request))
+	series = []
+	for relation in seriesByUser:
+		series.append(relation.serie)
 
 	try:
-		show = Serie.objects.get(id=int(selectedId))
+		show = UserSerie.objects.get(user = auth.get_user(request), serie = int(selectedId))
 
 		if request.POST.has_key('butAceptar'):
 			show.delete()
@@ -217,7 +223,7 @@ def eliminar(request, selectedId):
 			return redirect('index')
 		else:
 			page = 'series/eliminar.html'
-			context = {'title' : show.nombre, 'show' : show, 'series': series, 'request' : request}
+			context = {'title' : show.serie, 'show' : show, 'series': series, 'request' : request}
 
 	except Serie.DoesNotExist:
 		page = 'series/serie.html'
