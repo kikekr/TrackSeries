@@ -6,6 +6,7 @@ urlpatterns = [
 	url(r'^$', views.index, name='index'),
     url(r'^(\d+)/$', views.serie, name='serie'),
     url(r'^(\d+)/eliminar/$', views.eliminar, name='eliminar'),
+    url(r'^(\d+)/edit/$', views.edit, name='edit'),
 	url(r'^(\d+)/(\d+)/(\d+)/$', views.estadisticas, name='estadisticas'),
 	url(r'^nueva/$', views.nuevaSerie, name='nueva'),
 	url(r'^novedades/$', views.novedades, name='novedades'),
