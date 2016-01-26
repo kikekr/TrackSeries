@@ -32,19 +32,17 @@ class Command(BaseCommand):
             self.stdout.write(u"No existe serie con id %i\n" % (int(serie)))
             return
 
-        urlLimit = 5 # Usar limite de las preferencias !!!!!!!!!!!!!!!!!!!!!!!!
-
         # Set de urls siendo actualmente descargadas
         urls = set()
         # Lista de las transferencias activas
         activeTransfers = []
         # Momento de finalización
-        deadline = datetime.now() + timedelta(0, 0, 0, 0, 0, 1) # Introducir aqui el parametro de duracion en horas !!!!!!!!!!!!!!!!!!!!!!!!
+        deadline = datetime.now() + timedelta(0, 0, 0, 0, 0, serie.tiempoAnalisis)
 
         while (deadline - datetime.now()).total_seconds()>0:
             # Comprobar si hay más urls disponibles en caso de no disponer de suficientes
             if len(urls)<urlLimit:
-                newUrls = set(self.getTorrentsForEpisode(serie.nombre, int(temporada), int(capitulo), activeTransfers)) - urls
+                newUrls = set(self.getTorrentsForEpisode(serie.nombre, int(temporada), int(capitulo), serie.numeroTorrents)) - urls
                 for u in newUrls:
                     # Iniciar descarga para cada url
                     urls.add(u)
