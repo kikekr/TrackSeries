@@ -88,7 +88,7 @@ def addSerie(request, identifier):
 	except Serie.DoesNotExist :
 			
 		context = {'title' : 'Inicio', 'ID': identifier, 'nombre': name, 'series_list': series_list}
-		s = Serie(nombre = name, theTvdbID = identifier, descripcion = description, imagen = image, genero = genre, fechaEmision = airsday, estado = status)
+		s = Serie(nombre = name, theTvdbID = identifier, descripcion = description, imagen = image, genero = genre, fechaEmision = airsday, estado = status, tiempoAnalisis = 1, numeroTorrents = 1)
 		s.save()
 		
 		for episode in dataEpisodes.findall('Episode'):
@@ -204,6 +204,33 @@ def estadisticas(request, showId, seasonId, episodeId):
 		context = {'title' : "Not found", 'series': series, 'request' : request}
 
 	return render(request, 'series/estadisticas.html', context)
+	
+	
+def edit(request, selectedId):
+
+	seriesByUser = UserSerie.objects.filter(user = auth.get_user(request))
+	series = []
+	for relation in seriesByUser:
+		series.append(relation.serie)
+
+	try:
+		s = Serie.objects.get(id = int(selectedId))
+		context = {'title' : s.nombre, 'series': series, 'request' : request, 'selectedId': selectedId, 'nombre': s.nombre}
+		page = 'series/edit.html'
+		
+		if request.POST.get('butAceptarPreferencias') is not None:
+			numTorrents = request.POST.get('Torrents')
+			tiempoAnalisis = request.POST.get('Horas')
+			page = 'series/cambiosguardados.html'
+			
+			s.tiempoAnalisis = tiempoAnalisis
+			s.numeroTorrents = numTorrents
+			s.save()
+
+	except Serie.DoesNotExist:
+		context = {'title' : "Not found", 'series': series, 'request' : request}
+
+	return render(request, page, context)
 
 def eliminar(request, selectedId):
 

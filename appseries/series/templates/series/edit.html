@@ -1,0 +1,42 @@
+{% extends 'series/with-menu.html' %}
+
+{% block main %}
+  <h1 class="page-header">Preferencias</h1>
+
+<form id="formulario" action="{% url 'edit' selectedId %}" method="post">
+	  <label for="tiempoAnalisis">Duración del análisis</label>
+  
+  <select name="Horas" id="tiempoAnalisis" >
+	<option value=1>01 h.</option>
+	<option value=2>02 h.</option>
+	<option value=3>03 h.</option>
+	<option value=4>04 h.</option>
+	<option value=5>05 h.</option>
+	<option value=6>06 h.</option>
+	<option value=7>07 h.</option>
+	<option value=8>08 h.</option>
+	<option value=9>09 h.</option>
+	<option value=10>10 h.</option>
+	<option value=11>11 h.</option>
+	<option value=12>12 h.</option>
+	<option value=13>13 h.</option>
+	<option value=14>14 h.</option>
+	<option value=15>15 h.</option>
+	<option value=16>16 h.</option>
+	<option value=17>17 h.</option>
+	<option value=18>18 h.</option>
+	<option value=19>19 h.</option>
+	<option value=20>20 h.</option>
+	<option value=21>21 h.</option>
+	<option value=22>22 h.</option>
+	<option value=23>23 h.</option>
+	<option value=24>24 h.</option>
+  </select>
+  <br>
+  <label for="numTorrents">Número de torrents</label>
+  {% csrf_token %}
+  <input type="number" name="Torrents" id="numTorrents" min="0" max="10" step="1" value="1"><br></br>
+  <input type="submit" value=" Aceptar " name="butAceptarPreferencias"/> <br>
+ </form>
+
+{% endblock %}
