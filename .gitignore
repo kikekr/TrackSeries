@@ -20,3 +20,4 @@ appseries/series/views.py~
 appseries/series/migrations
 appseries/series/APIseries.pyc
 appseries/series/APIfreegeoip.pyc
+appseries/series/management/commands/startanalysis.pyc
