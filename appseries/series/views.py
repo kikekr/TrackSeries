@@ -62,7 +62,7 @@ def addSerie(request, identifier):
 		except Serie.DoesNotExist :
 
 			context = {'title' : 'Inicio', 'ID': identifier, 'nombre': name, 'series_list': series_list}
-			s = Serie(nombre = name, theTvdbID = identifier, descripcion = description, imagen = image, genero = genre, fechaEmision = airsday, estado = status, tiempoAnalisis = 1, numeroTorrents = 1)
+			s = Serie(nombre = name, theTvdbID = identifier, descripcion = description, imagen = image, genero = genre, fechaEmision = airsday, estado = status, tiempoAnalisis = 1, numeroTorrents = 1, limiteSubida = 50, limiteBajada = 200)
 			s.save()
 
 			for episode in dataEpisodes.findall('Episode'):
@@ -182,17 +182,20 @@ def serie(request, selectedId):
 		seriesByUser = UserSerie.objects.filter(user = auth.get_user(request))
 		series = []
 		for relation in seriesByUser:
-			series.append(relation.serie)
-			
-		if request.POST.get('butAnalizar') is not None:
-			episodeNum = request.POST.get('episodeNum')
-			episodeSea = request.POST.get('episodeSea')
-
-			# Error de versiones
-			# call_command('startanalysis', selectedId, episodeSea, episodeNum)		
+			series.append(relation.serie)		
 
 		try:
 			show = Serie.objects.get(id=int(selectedId))
+			
+			if request.POST.get('butAnalizar') is not None:
+				episodeNum = request.POST.get('episodeNum')
+				episodeSea = request.POST.get('episodeSea')
+				
+				# capitulo.estado = 1 (En proceso de descarga)
+				
+				# Error de versiones
+				# call_command('startanalysis', selectedId, episodeSea, episodeNum)
+				
 			
 			if request.POST.get('butActualizar') is not None:
 				actualizar(show)
@@ -276,16 +279,20 @@ def edit(request, selectedId):
 
 		try:
 			s = Serie.objects.get(id = int(selectedId))
-			context = {'title' : s.nombre, 'series': series, 'request' : request, 'selectedId': selectedId, 'nombre': s.nombre, 'tiempoAnalisis': s.tiempoAnalisis, 'numTorrents': s.numeroTorrents}
+			context = {'title' : s.nombre, 'series': series, 'request' : request, 'selectedId': selectedId, 'nombre': s.nombre, 'tiempoAnalisis': s.tiempoAnalisis, 'numTorrents': s.numeroTorrents, 'limiteSubida': s.limiteSubida, 'limiteDescarga': s.limiteBajada}
 			page = 'series/edit.html'
 
 			if request.POST.get('butAceptarPreferencias') is not None:
 				numTorrents = request.POST.get('Torrents')
 				tiempoAnalisis = request.POST.get('Horas')
+				limiteSubida = request.POST.get('limiteSubida')
+				limiteBajada = request.POST.get('limiteDescarga')
 				page = 'series/cambiosguardados.html'
 
 				s.tiempoAnalisis = tiempoAnalisis
 				s.numeroTorrents = numTorrents
+				s.limiteSubida = limiteSubida
+				s.limiteBajada = limiteBajada
 				s.save()
 
 		except Serie.DoesNotExist:
