@@ -21,3 +21,4 @@ appseries/series/migrations
 appseries/series/APIseries.pyc
 appseries/series/APIfreegeoip.pyc
 appseries/series/management/commands/startanalysis.pyc
+appseries/series/management/__init__.pyc
