@@ -46,10 +46,10 @@ class Command(BaseCommand):
             self.stdout.write(u"No existe serie con id %i\n" % (int(serie)))
             return
 
-        # Falta comprobar si el directorio temporal existe, y crearlo en caso negativo !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
         # Set de urls siendo actualmente descargadas
         urls = set()
+        # Set de ips de peers conocidos
+        peers = set()
         # Momento de finalización
         deadline = datetime.now() + timedelta(0, 0, 0, 0, 0, serie.tiempoAnalisis)
 
@@ -64,7 +64,7 @@ class Command(BaseCommand):
                     # Iniciar descarga para cada url
                     e = lt.bdecode(self.getTorrentFileAsString(u))
                     info = lt.torrent_info(e)
-                    params = { "save_path": "/tmp/.appseries/", "storage_mode": lt.storage_mode_t.storage_mode_sparse, "ti": info }
+                    params = { "save_path": self.tempUrl, "storage_mode": lt.storage_mode_t.storage_mode_sparse, "ti": info }
                     ses.add_torrent(params)
                     # Tal vez establecer un limite de bajada y subida?
 
@@ -73,16 +73,20 @@ class Command(BaseCommand):
 
             # Para cada descarga comprobar a que peers se encuentra conectado
             for h in ses.get_torrents():
-                for peer in h.get_peer_info():
+                for p in h.get_peer_info():
+                    ip, port = p.ip
                     # Debug
-                    ip, port = peer.ip
-                    self.stdout.write(ip)
+                    if ip not in peers:
+                        # Añadir a la base de datos usando los objetos del modelo!
+                        self.stdout.write(ip)
+                    # Añadir los peers al set, evitando asi repetidos
+                    peers.add(ip)
 
-            sleep(sleepTime)
+            sleep(self.sleepTime)
 
-        # Cerrar todas las conexiones activas !!!!!!!!!!!!!!!!! Sin debugear si funciona
+        # Cerrar todas las conexiones activas
         for h in ses.get_torrents():
-            ses.remove_torrent(h)
+            ses.remove_torrent(h, lt.options_t.delete_files)
 
     def handle(self, *args, **options):
         if len(args)==3:
