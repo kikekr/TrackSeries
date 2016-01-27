@@ -47,4 +47,4 @@ def getLocationByList(IPList):
     for t in threadList:
         t.join()
 
-    return IPInfo
+    return filter(lambda x: x is not None, IPInfo)

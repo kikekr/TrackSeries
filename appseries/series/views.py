@@ -25,7 +25,7 @@ def novedades(request):
 	series_list = []
 	for relation in seriesByUser:
 		series_list.append(relation.serie)
-		
+
 	apiSeries = APIseries()
 
 	#Para cada serie comprobamos la lista de capitulos en la BD y en TheTvdb
@@ -54,7 +54,7 @@ def addSerie(request, identifier):
 	series_list = []
 	for relation in seriesByUser:
 		series_list.append(relation.serie)
-		
+
 	api = APIseries()
 	data = api.getSeriesByRemoteID(identifier)
 	dataEpisodes = api.getEpisodes(identifier)
@@ -83,14 +83,14 @@ def addSerie(request, identifier):
 	try :
 		tryingUserSerie = UserSerie.objects.get(user = auth.get_user(request), serie = Serie.objects.get(theTvdbID = identifier))
 		context = {'title' : 'Inicio', 'ID': identifier, 'nombre': name, 'series_list': series_list, 'existe': 'true'}
-	
-		
+
+
 	except Serie.DoesNotExist :
-			
+
 		context = {'title' : 'Inicio', 'ID': identifier, 'nombre': name, 'series_list': series_list}
 		s = Serie(nombre = name, theTvdbID = identifier, descripcion = description, imagen = image, genero = genre, fechaEmision = airsday, estado = status, tiempoAnalisis = 1, numeroTorrents = 1)
 		s.save()
-		
+
 		for episode in dataEpisodes.findall('Episode'):
 
 			episodename = episode.find('EpisodeName').text
@@ -105,7 +105,7 @@ def addSerie(request, identifier):
 					seasonnumber = 9999
 
 			Serie.objects.get(theTvdbID = identifier).capitulo_set.create(temporada = seasonnumber, numero = episodenumber, titulo = episodename, estado = 0)
-			
+
 
 		us = UserSerie(user = auth.get_user(request), serie = Serie.objects.get(theTvdbID = identifier))
 		us.save()
@@ -124,7 +124,7 @@ def nuevaSerie(request):
 	series = []
 	for relation in seriesByUser:
 		series.append(relation.serie)
-		
+
 	context = {'title' : 'Inicio', 'series': series, 'request' : request}
 	nameserie = ''
 	api = APIseries()
@@ -165,27 +165,27 @@ def serie(request, selectedId):
 
 
 def index(request):
-	
+
 	if request.user.is_authenticated():
 		seriesByUser = UserSerie.objects.filter(user = auth.get_user(request))
 		series = []
 		for relation in seriesByUser:
 			series.append(relation.serie)
-			
+
 		context = {'title' : 'Inicio', 'request' : request, 'series': series}
 		return render(request, 'series/index-auth.html', context)
-		
+
 	else:
 		context = {'title' : 'Inicio', 'request' : request}
 		return render(request, 'series/index-noauth.html', context)
 
 def estadisticas(request, showId, seasonId, episodeId):
-	
+
 	seriesByUser = UserSerie.objects.filter(user = auth.get_user(request))
 	series = []
 	for relation in seriesByUser:
 		series.append(relation.serie)
-	
+
 	try:
 		show = Serie.objects.get(id=int(showId))
 		episode = Capitulo.objects.get(serie=int(showId), temporada=int(seasonId), numero=int(episodeId))
@@ -204,8 +204,8 @@ def estadisticas(request, showId, seasonId, episodeId):
 		context = {'title' : "Not found", 'series': series, 'request' : request}
 
 	return render(request, 'series/estadisticas.html', context)
-	
-	
+
+
 def edit(request, selectedId):
 
 	seriesByUser = UserSerie.objects.filter(user = auth.get_user(request))
@@ -217,12 +217,12 @@ def edit(request, selectedId):
 		s = Serie.objects.get(id = int(selectedId))
 		context = {'title' : s.nombre, 'series': series, 'request' : request, 'selectedId': selectedId, 'nombre': s.nombre}
 		page = 'series/edit.html'
-		
+
 		if request.POST.get('butAceptarPreferencias') is not None:
 			numTorrents = request.POST.get('Torrents')
 			tiempoAnalisis = request.POST.get('Horas')
 			page = 'series/cambiosguardados.html'
-			
+
 			s.tiempoAnalisis = tiempoAnalisis
 			s.numeroTorrents = numTorrents
 			s.save()
