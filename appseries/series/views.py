@@ -11,6 +11,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.http import HttpResponseRedirect
 import pandas as pd
 from django.contrib import auth
+from django.core.management import call_command
 
 # import the logging library
 import logging
@@ -137,13 +138,21 @@ def nuevaSerie(request):
 				context = {'title' : 'Inicio', 'data': data, 'series': series, 'request' : request}
 
 	return render(request, 'series/NuevaSerie.html', context)
-
+	
+	
 def serie(request, selectedId):
 
 	seriesByUser = UserSerie.objects.filter(user = auth.get_user(request))
 	series = []
 	for relation in seriesByUser:
 		series.append(relation.serie)
+		
+	if request.POST.get('butAnalizar') is not None:
+		episodeNum = request.POST.get('episodeNum')
+		episodeSea = request.POST.get('episodeSea')
+
+		# Error de versiones
+		# call_command('startanalysis', selectedId, episodeSea, episodeNum)		
 
 	try:
 		show = Serie.objects.get(id=int(selectedId))

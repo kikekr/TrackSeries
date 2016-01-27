@@ -46,11 +46,26 @@
                                             {% if episode.estado == 1 %}
                                                 <span class="glyphicon glyphicon-transfer" aria-hidden="true"> Análisis en curso</span>
                                             {% elif episode.estado == 2 %}
-                                                <a href="{% url 'estadisticas' show.id episode.temporada episode.numero %}"><span class="glyphicon glyphicon-stats" aria-hidden="true"> Ver estadísticas</span></a>
+                                                <a href="{% url 'estadisticas' show episode.temporada episode.numero %}"><span class="glyphicon glyphicon-stats" aria-hidden="true"> Ver estadísticas</span></a>
                                             {% else %}
-                                                <span class="glyphicon glyphicon-ban-circle" aria-hidden="true"> No hay datos disponibles</span>
+                                                <span class="glyphicon glyphicon-ban-circle" aria-hidden="true"> No hay datos disponibles </span>
+                                                
                                             {% endif %}
                                         </td>
+                                        
+                                        {% if episode.estado != 1 %}
+											{% if user.is_superuser %}
+											<td>
+												<form id="formulario" action="{% url 'serie' show.id %}" method="post">
+													 {% csrf_token %}
+													<input type="hidden" value=" {{episode.temporada}}" name="episodeSea"/>
+													<input type="hidden" value=" {{episode.numero}}" name="episodeNum"/>
+													<input type="submit" value=" Analizar " name="butAnalizar"/>
+												</form>
+											</td>
+											{% endif %}
+										{% endif %}
+
                                     </tr>
                                 {% endfor %}
                                 <tr><td></td></tr>
