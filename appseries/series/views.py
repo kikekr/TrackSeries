@@ -276,7 +276,7 @@ def edit(request, selectedId):
 
 		try:
 			s = Serie.objects.get(id = int(selectedId))
-			context = {'title' : s.nombre, 'series': series, 'request' : request, 'selectedId': selectedId, 'nombre': s.nombre}
+			context = {'title' : s.nombre, 'series': series, 'request' : request, 'selectedId': selectedId, 'nombre': s.nombre, 'tiempoAnalisis': s.tiempoAnalisis, 'numTorrents': s.numeroTorrents}
 			page = 'series/edit.html'
 
 			if request.POST.get('butAceptarPreferencias') is not None:

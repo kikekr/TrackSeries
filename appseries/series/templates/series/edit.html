@@ -6,10 +6,10 @@
 <form id="formulario" action="{% url 'edit' selectedId %}" method="post">
 
   <label for="tiempoAnalisis">Duración del análisis (h.)</label>
-  <input type="number" name="Horas" id="tiempoAnalisis" min="0" max="24" step="1" value="1"><br>
+  <input type="number" name="Horas" id="tiempoAnalisis" min="0" max="24" step="1" value="{{tiempoAnalisis}}"><br>
   <label for="numTorrents">Número de torrents</label>
   {% csrf_token %}
-  <input type="number" name="Torrents" id="numTorrents" min="0" max="10" step="1" value="1"><br></br>
+  <input type="number" name="Torrents" id="numTorrents" min="0" max="10" step="1" value="{{numTorrents}}"><br></br>
   <input type="submit" value=" Aceptar " name="butAceptarPreferencias"/> <br>
  </form>
 
