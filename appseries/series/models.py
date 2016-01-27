@@ -37,12 +37,12 @@ class Capitulo(models.Model):
 class IPDescarga(models.Model):
 	capitulo = models.ForeignKey(Capitulo)
 	ip = models.CharField(max_length=15)
-	hora = models.IntegerField(max_length=512)
+	hora = models.IntegerField()
 
 class CachedLocation(models.Model):
 	ip = models.CharField(primary_key=True, max_length=15)
 	location = models.CharField(max_length=15)
-	
+
 class UserSerie(models.Model):
 	user = models.ForeignKey(User)
 	serie = models.ForeignKey(Serie)

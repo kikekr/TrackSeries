@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from django.core.management.base import BaseCommand
-from series.models import Serie
+from series.models import Serie, Capitulo, IPDescarga
 
 import threading
 from lxml import html
@@ -39,27 +39,32 @@ class Command(BaseCommand):
             url = "http:" + url
         return requests.get(url, headers=headers).content
 
-    def analyze(self, serieId, temporada, capitulo):
+    def analyze(self, serieId, temporada, numero):
         try:
             serie = Serie.objects.get(id=int(serieId))
+            capitulo = Capitulo.objects.get(serie=serie, temporada=temporada, numero=numero)
         except Serie.DoesNotExist:
             self.stdout.write(u"No existe serie con id %i\n" % (int(serie)))
             return
+        except Capitulo.DoesNotExist:
+            self.stdout.write(u"No existe caṕítulo %i de la temporada %i para la serie %s\n" % (numero, temporada, serie.nombre))
 
         # Set de urls siendo actualmente descargadas
         urls = set()
-        # Set de ips de peers conocidos
-        peers = set()
+        # Lista de ips de peers conocidos
+        peers = []
         # Momento de finalización
         deadline = datetime.now() + timedelta(0, 0, 0, 0, 0, serie.tiempoAnalisis)
-
-        # Inicialización de la sesión de
+        # Establecer análisis del capítulo como iniciado
+        capitulo.estado = 1
+        capitulo.save()
+        # Inicialización de la sesión de libtorrent
         ses = lt.session()
 
         while (deadline - datetime.now()).total_seconds()>0:
             # Comprobar si hay más urls disponibles en caso de no disponer de suficientes
             if len(urls)<serie.numeroTorrents:
-                newUrls = set(self.getTorrentsForEpisode(serie.nombre, int(temporada), int(capitulo), serie.numeroTorrents)) - urls
+                newUrls = set(self.getTorrentsForEpisode(serie.nombre, int(temporada), int(numero), serie.numeroTorrents)) - urls
                 for u in newUrls:
                     # Iniciar descarga para cada url
                     e = lt.bdecode(self.getTorrentFileAsString(u))
@@ -75,18 +80,23 @@ class Command(BaseCommand):
             for h in ses.get_torrents():
                 for p in h.get_peer_info():
                     ip, port = p.ip
-                    # Debug
                     if ip not in peers:
-                        # Añadir a la base de datos usando los objetos del modelo!
+                        # Añadir a la base de datos
+                        newIpDescarga = IPDescarga(capitulo=capitulo, ip=ip, hora=datetime.utcnow().strftime("%s"))
+                        newIpDescarga.save()
+                        # Debug
                         self.stdout.write(ip)
-                    # Añadir los peers al set, evitando asi repetidos
-                    peers.add(ip)
+                        # Añadir los peers al set, evitando asi repetidos
+                        peers.append(ip)
 
             sleep(self.sleepTime)
 
         # Cerrar todas las conexiones activas
         for h in ses.get_torrents():
             ses.remove_torrent(h, lt.options_t.delete_files)
+        # Establecer análisis del capítulo como finalizado
+        capitulo.estado = 2
+        capitulo.save()
 
     def handle(self, *args, **options):
         if len(args)==3:
