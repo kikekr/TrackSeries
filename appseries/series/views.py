@@ -12,6 +12,7 @@ from django.http import HttpResponseRedirect
 import pandas as pd
 from django.contrib import auth
 from django.core.management import call_command
+import itertools
 
 # import the logging library
 import logging
@@ -19,34 +20,8 @@ import logging
 # Get an instance of a logger
 logger = logging.getLogger("django")
 
-def novedades(request):
 
-	#Obtenemos la lista de series suscritas
-	seriesByUser = UserSerie.objects.filter(user = request.user)
-	series_list = []
-	for relation in seriesByUser:
-		series_list.append(relation.serie)
 
-	apiSeries = APIseries()
-
-	#Para cada serie comprobamos la lista de capitulos en la BD y en TheTvdb
-	for serie in series_list:
-		dataEpisodes = apiSeries.getEpisodes(serie.theTvdbID).findall('Episode')
-		dataBaseEpisodes = serie.capitulo_set.all()
-
-		# print 'Episodios en TheTvdb: ' + str(len(dataEpisodes))
-		# print 'Episodios en la base de datos: ' + str(len(dataBaseEpisodes))
-
-		#Comprobamos el numero de episodios
-		if len(dataEpisodes) == len(dataBaseEpisodes):
-			print 'La serie ' + serie.nombre + ' esta actualizada'
-		else:
-			print 'La serie ' + serie.nombre + ' esta desactualizada'
-
-			# Actualizar la base de datos
-			# Descargar los ficheros torrent de los episodios nuevos
-
-	return render(request, 'series/novedades.html')
 
 
 def addSerie(request, identifier):
@@ -140,6 +115,59 @@ def nuevaSerie(request):
 	return render(request, 'series/NuevaSerie.html', context)
 	
 	
+def actualizar(serie):
+
+	apiSeries = APIseries()
+	dataEpisodes = apiSeries.getEpisodes(serie.theTvdbID).findall('Episode')
+	
+	apiSerie = apiSeries.getSeriesByRemoteID(serie.theTvdbID)
+	
+	for apiSerie in apiSerie.findall('Series'):
+		name = apiSerie.find('SeriesName').text
+		airsday = apiSerie.find('Airs_DayOfWeek').text
+		description = apiSerie.find('Overview').text
+		image = apiSerie.find('banner').text
+		genre = apiSerie.find('Genre').text
+		status = apiSerie.find('Status').text
+
+		if name is None:
+			name = 'None'
+		if airsday is None:
+			airsday = 'None'
+		if description is None:
+			description = 'None'
+		if image is None:
+			image = 'None'
+		if genre is None:
+			genre = 'None'
+		if status is None:
+			status = 'None'
+			
+		serie.nombre = name
+		serie.fechaemision = airsday
+		serie.descripcion = description
+		serie.imagen = image
+		serie.genero = genre
+		serie.estado = status
+		
+		serie.save()
+		
+	for apiEpisode in dataEpisodes:
+		episodeName = apiEpisode.find('EpisodeName').text
+		seasonNumber = int(apiEpisode.find('SeasonNumber').text)
+		episodeNumber = int(apiEpisode.find('EpisodeNumber').text)
+				
+		try:
+			episode = Capitulo.objects.get(serie=serie.id, temporada=seasonNumber, numero=episodeNumber, titulo = episodeName)
+			print episode.titulo
+	
+		except Capitulo.DoesNotExist:
+			Serie.objects.get(theTvdbID = serie.theTvdbID).capitulo_set.create(temporada = seasonNumber, numero = episodeNumber, titulo = episodeName, estado = 0)
+		
+	return
+
+	
+	
 def serie(request, selectedId):
 
 	seriesByUser = UserSerie.objects.filter(user = auth.get_user(request))
@@ -156,6 +184,10 @@ def serie(request, selectedId):
 
 	try:
 		show = Serie.objects.get(id=int(selectedId))
+		
+		if request.POST.get('butActualizar') is not None:
+			actualizar(show)
+		
 		countSeasons = Capitulo.objects.filter(serie=int(selectedId)).aggregate(count=Max('temporada'))['count']
 
 		if countSeasons:
