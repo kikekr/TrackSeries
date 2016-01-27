@@ -19,8 +19,17 @@ import logging
 # Get an instance of a logger
 logger = logging.getLogger("django")
 
-def novedades(request):
+def generateContext(request=None, title=None, series=None):
+	context = {}
+	if request:
+		context['request'] = request
+	if title:
+		context['title'] = title
+	if series:
+		context['series'] = series
+	return context
 
+def novedades(request):
 	#Obtenemos la lista de series suscritas
 	seriesByUser = UserSerie.objects.filter(user = request.user)
 	series_list = []
@@ -50,7 +59,6 @@ def novedades(request):
 
 
 def addSerie(request, identifier):
-
 	seriesByUser = UserSerie.objects.filter(user = request.user)
 	series_list = []
 	for relation in seriesByUser:
@@ -120,7 +128,6 @@ def addSerie(request, identifier):
 	return render(request, 'series/serieanadida.html', context)
 
 def nuevaSerie(request):
-
 	seriesByUser = UserSerie.objects.filter(user = auth.get_user(request))
 	series = []
 	for relation in seriesByUser:
@@ -138,58 +145,53 @@ def nuevaSerie(request):
 				context = {'title' : 'Inicio', 'data': data, 'series': series, 'request' : request}
 
 	return render(request, 'series/NuevaSerie.html', context)
-	
-	
-def serie(request, selectedId):
 
+
+def serie(request, selectedId, season=0):
 	seriesByUser = UserSerie.objects.filter(user = auth.get_user(request))
 	series = []
 	for relation in seriesByUser:
 		series.append(relation.serie)
-		
+
 	if request.POST.get('butAnalizar') is not None:
 		episodeNum = request.POST.get('episodeNum')
 		episodeSea = request.POST.get('episodeSea')
 
 		# Error de versiones
-		# call_command('startanalysis', selectedId, episodeSea, episodeNum)		
+		# call_command('startanalysis', selectedId, episodeSea, episodeNum)
 
 	try:
 		show = Serie.objects.get(id=int(selectedId))
 		countSeasons = Capitulo.objects.filter(serie=int(selectedId)).aggregate(count=Max('temporada'))['count']
 
-		if countSeasons:
-			seasons = {}
-			for i in xrange(1, int(countSeasons)):
-				seasons[i] = Capitulo.objects.filter(serie=int(selectedId), temporada=i)
-			context = {'title' : show.nombre, 'show' : show, "seasons": seasons, 'series': series, 'request' : request}
-
-		else:
-			context = {'title' : show.nombre, 'show' : show, 'series': series, 'request' : request}
+		context = generateContext(request=request, title=show.nombre, series=series)
+		context["show"] = show
+		allEpisodes = Capitulo.objects.filter(serie=int(selectedId))
+		seasonCount = max(allEpisodes, key=lambda x: x.temporada).temporada
+		logger.info(seasonCount)
+		context["seasons"] = range(1, seasonCount+1)
+		if season>0:
+			context["episodes"] = allEpisodes.filter(temporada=season).order_by("numero")
 
 	except Serie.DoesNotExist:
-		context = {'title' : "Not found", 'series': series, 'request' : request}
+		context = generateContext(request=request, title="Not found", series=series)
 
 	return render(request, 'series/serie.html', context)
 
 
 def index(request):
-
 	if request.user.is_authenticated():
 		seriesByUser = UserSerie.objects.filter(user = auth.get_user(request))
 		series = []
 		for relation in seriesByUser:
 			series.append(relation.serie)
 
-		context = {'title' : 'Inicio', 'request' : request, 'series': series}
-		return render(request, 'series/index-auth.html', context)
+		return render(request, 'series/index-auth.html', generateContext(request=request, title="Inicio", series=series))
 
 	else:
-		context = {'title' : 'Inicio', 'request' : request}
-		return render(request, 'series/index-noauth.html', context)
+		return render(request, 'series/index-noauth.html', generateContext(request=request, title="Inicio"))
 
 def estadisticas(request, showId, seasonId, episodeId):
-
 	seriesByUser = UserSerie.objects.filter(user = auth.get_user(request))
 	series = []
 	for relation in seriesByUser:
@@ -205,18 +207,19 @@ def estadisticas(request, showId, seasonId, episodeId):
 		cnt = df.groupby(by="country_name")['ip'].count().to_dict()
 		logger.info(df.to_string())
 
-		context = {'title' : show.nombre, 'show' : show, 'episode': episode, 'cnt_downloads': cnt, 'df_downloads': df, 'series': series, 'request' : request}
+		context = generateContext(request=request, title=show.nombre, series=series)
+		context["show"] = show
+		context["episode"] = episode
+		context["cnt_downloads"] = cnt
+		context["df_downloads"] = df
 
-	except Serie.DoesNotExist:
-		context = {'title' : "Not found", 'series': series, 'request' : request}
-	except Capitulo.DoesNotExist:
-		context = {'title' : "Not found", 'series': series, 'request' : request}
+	except (Serie.DoesNotExist, Capitulo.DoesNotExist):
+		context = generateContext(request=request, title="Not found", series=series)
 
 	return render(request, 'series/estadisticas.html', context)
 
 
 def edit(request, selectedId):
-
 	seriesByUser = UserSerie.objects.filter(user = auth.get_user(request))
 	series = []
 	for relation in seriesByUser:
@@ -224,7 +227,9 @@ def edit(request, selectedId):
 
 	try:
 		s = Serie.objects.get(id = int(selectedId))
-		context = {'title' : s.nombre, 'series': series, 'request' : request, 'selectedId': selectedId, 'nombre': s.nombre}
+		context = generateContext(request=request, title=s.nombre, series=series)
+		context['selectedId'] = selectedId
+		context['nombre'] = s.nombre
 		page = 'series/edit.html'
 
 		if request.POST.get('butAceptarPreferencias') is not None:
@@ -237,12 +242,11 @@ def edit(request, selectedId):
 			s.save()
 
 	except Serie.DoesNotExist:
-		context = {'title' : "Not found", 'series': series, 'request' : request}
+		context = generateContext(request=request, title="Not found", series=series)
 
 	return render(request, page, context)
 
 def eliminar(request, selectedId):
-
 	seriesByUser = UserSerie.objects.filter(user = auth.get_user(request))
 	series = []
 	for relation in seriesByUser:
@@ -259,11 +263,12 @@ def eliminar(request, selectedId):
 			return redirect('index')
 		else:
 			page = 'series/eliminar.html'
-			context = {'title' : show.serie, 'show' : show, 'series': series, 'request' : request}
+			context = generateContext(request=request, title=show.serie, series=series)
+			context['show'] = show
 
 	except Serie.DoesNotExist:
 		page = 'series/serie.html'
-		context = {'title' : "Not found", 'series': series, 'request' : request}
+		context = generateContext(request=request, title="Not found", series=series)
 
 	return render(request, page, context)
 
