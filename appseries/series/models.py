@@ -14,6 +14,8 @@ class Serie(models.Model):
 	estado = models.CharField(max_length=100)
 	tiempoAnalisis = models.IntegerField()
 	numeroTorrents = models.IntegerField()
+	limiteSubida = models.IntegerField()
+	limiteBajada = models.IntegerField()
 
 	def __unicode__(self):
 		return self.nombre

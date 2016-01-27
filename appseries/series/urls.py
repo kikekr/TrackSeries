@@ -10,7 +10,6 @@ urlpatterns = [
     url(r'^(\d+)/edit/$', views.edit, name='edit'),
 	url(r'^(\d+)/(\d+)/(\d+)/$', views.estadisticas, name='estadisticas'),
 	url(r'^nueva/$', views.nuevaSerie, name='nueva'),
-	url(r'^novedades/$', views.novedades, name='novedades'),
 	url(r'^nuevaserie/(?P<identifier>\d+)/$', views.addSerie, name='addSerie'),
 	url(r'^register/$', views.register, name='register'),
 	url(r'^', include('django.contrib.auth.urls')),
