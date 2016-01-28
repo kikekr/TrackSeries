@@ -213,6 +213,9 @@ def serie(request, selectedId, season=0):
 
 	try:
 		show = Serie.objects.get(id=int(selectedId))
+		
+		if request.POST.get('butActualizar') is not None:
+			actualizar(show)
 
 		context = generateContext(request=request, title=show.nombre, series=series)
 		context["show"] = show
