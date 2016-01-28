@@ -13,7 +13,7 @@ class APIseries:
 		response = requests.get("http://www.thetvdb.com/api/GetSeries.php?seriesname="+name+"&language=es")
 
 		if (response.status_code == 200):
-			data = ET.fromstring(response.text.encode('utf-8'))
+			data = ET.fromstring(response.content)
 			return data
 			
 	def getSeriesByRemoteID(self, ID):
@@ -21,7 +21,7 @@ class APIseries:
 		response = requests.get("http://www.thetvdb.com/api/"+self.APIKEY+"/series/"+ID+"/es.xml")
 		
 		if (response.status_code == 200):
-			data = ET.fromstring(response.text.encode('utf-8'))
+			data = ET.fromstring(response.content)
 			return data
 			
 	def getEpisodes(self, ID):
@@ -29,7 +29,7 @@ class APIseries:
 		response = requests.get("http://www.thetvdb.com/api/"+self.APIKEY+"/series/"+ID+"/all/es.xml")
 		
 		if (response.status_code == 200):
-			data = ET.fromstring(response.text.encode('utf-8'))
+			data = ET.fromstring(response.content)
 			return data
 
 
