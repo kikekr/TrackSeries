@@ -41,64 +41,29 @@ def addSerie(request, identifier):
 			series_list.append(relation.serie)
 
 		api = APIseries()
-		data = api.getSeriesByRemoteID(identifier)
-		dataEpisodes = api.getEpisodes(identifier)
-
-		for serie in data.findall('Series'):
-			name = serie.find('SeriesName').text
-			airsday = serie.find('Airs_DayOfWeek').text
-			description = serie.find('Overview').text
-			image = serie.find('banner').text
-			genre = serie.find('Genre').text
-			status = serie.find('Status').text
-
-			if name is None:
-				name = 'None'
-			if airsday is None:
-				airsday = 'None'
-			if description is None:
-				description = 'None'
-			if image is None:
-				image = 'None'
-				
-			if genre is None:
-				genre = 'None'
-			else:
-				genre = genre.replace("|", ", ")
-				l = list(genre)
-				del(l[0])
-				del(l[len(l)-1])
-				genre = "".join(l)
-				
-			if status is None:
-				status = 'None'
+		data = api.getDictSerie(identifier)
+		
+		name = data['title']
+		airsday = data['Airs_DayOfWeek']
+		description = data['overview']
+		image = data['banner']
+		genre = data['genre']
+		status = data['status']
 
 		try :
 			tryingUserSerie = UserSerie.objects.get(user = auth.get_user(request), serie = Serie.objects.get(theTvdbID = identifier))
 			context = {'title' : 'Inicio', 'ID': identifier, 'nombre': name, 'series_list': series_list, 'existe': 'true'}
-
 
 		except Serie.DoesNotExist :
 
 			context = {'title' : 'Inicio', 'ID': identifier, 'nombre': name, 'series_list': series_list}
 			s = Serie(nombre = name, theTvdbID = identifier, descripcion = description, imagen = image, genero = genre, fechaEmision = airsday, estado = status, tiempoAnalisis = 1, numeroTorrents = 1, limiteSubida = 50, limiteBajada = 200)
 			s.save()
-
-			for episode in dataEpisodes.findall('Episode'):
-
-				episodename = episode.find('EpisodeName').text
-				episodenumber = episode.find('EpisodeNumber').text
-				seasonnumber = episode.find('SeasonNumber').text
-
-				if episodename is None:
-						episodename = 'None'
-				if episodenumber is None:
-						episodenumber = 9999
-				if seasonnumber is None:
-						seasonnumber = 9999
-
-				Serie.objects.get(theTvdbID = identifier).capitulo_set.create(temporada = seasonnumber, numero = episodenumber, titulo = episodename, estado = 0)
-
+			
+			dataStructuredEpisodes = api.getStructuredEpisodes(identifier)
+			for title, season, number in dataStructuredEpisodes:
+				print title
+				Serie.objects.get(theTvdbID = identifier).capitulo_set.create(temporada = season, numero = number, titulo = title, estado = 0)
 
 			us = UserSerie(user = auth.get_user(request), serie = Serie.objects.get(theTvdbID = identifier))
 			us.save()
