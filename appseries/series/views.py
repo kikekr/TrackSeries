@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from xml.etree import ElementTree as ET
 import requests
 import sys
@@ -106,28 +108,26 @@ def addSerie(request, identifier):
 
 
 def nuevaSerie(request):
-
 	if request.user.is_authenticated():
 		seriesByUser = UserSerie.objects.filter(user = auth.get_user(request))
 		series = []
 		for relation in seriesByUser:
 			series.append(relation.serie)
 
-		context = {'title' : 'Inicio', 'series': series, 'request' : request}
-		nameserie = ''
+		context = generateContext(title = "Añadir serie", series=series, request=request)
 		api = APIseries()
 
 		if request.POST.has_key('myS'):
 				nameserie = request.POST['myS']
-				data = api.getSeries(nameserie)
+				tuple_list = api.getStructuredSeries(nameserie)
 
-				if len(data) > 0:
-					context = {'title' : 'Inicio', 'data': data, 'series': series, 'request' : request}
+				if tuple_list and len(tuple_list) > 0:
+					context["tuple_list"] = tuple_list
 
-		return render(request, 'series/NuevaSerie.html', context)
+		return render(request, 'series/nuevaserie.html', context)
 
 	else:
-		context = {'title' : 'Inicio', 'request' : request}
+		context = generateContext(title = "Añadir serie", request=request)
 		return render(request, 'series/index-noauth.html', context)
 
 

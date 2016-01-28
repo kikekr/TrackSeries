@@ -1,0 +1,65 @@
+{% extends 'series/with-menu.html' %}
+
+{% block sidebar %}
+  <ul class="nav nav-sidebar">
+    <li class="active"><a href="/series/"><span class="glyphicon glyphicon-th-list" aria-hidden="true"></span> Panel de control</a></li>
+  </ul>
+
+  {% if series_list %}
+	<ul class="nav nav-sidebar">
+		<li><a href="/series/"><b>Mis series</b></a></li>
+		{% for series_list in series_list %}
+			<li><a href="/series/1">{{ series_list.nombre }}</a></li>
+		{% endfor %}
+	</ul>
+  {% endif %}
+
+	<ul class="nav nav-sidebar">
+		<li><a href="/series/nueva"><b>Añadir serie</b></a></li>
+	</ul>
+
+
+	<ul class="nav nav-sidebar">
+		<li><a href="/series/estadisticas"><b>Estadísticas</b></a></li>
+	</ul>
+
+{% endblock %}
+
+{% block main %}
+
+    <h1 class="page-header">Añadir serie</h1>
+    <div class="col-lg-6">
+        <form action="{% url 'nueva' %}" method="post">
+            {% csrf_token %}
+            <div class="input-group">
+                <input type="text" class="form-control" name="myS" placeholder="Introducir serie">
+                <span class="input-group-btn">
+                    <button class="btn btn-default" type="submit" value=" GO " name="butGo">Buscar</button>
+                </span>
+            </div>
+        </form>
+    </div>
+
+    <div style="clear:both;"></div>
+
+    <h2 class="sub-header">Resultados</h2>
+    {% for title, banner, desc, id in tuple_list %}
+        {% if not forloop.counter|divisibleby:"2" %}
+            <div class="row">
+        {% endif %}
+        <div class="col-sm-6 col-md-6">
+            <div class="thumbnail">
+                <img src="{{ banner }}">
+                <div class="caption">
+                    <h3>{{ title }}</h3>
+                    <p>{{ desc }}</p>
+                    <p><a href="{% url 'addSerie' id %}" class="btn btn-primary" role="button">Añadir</a></p>
+                </div>
+            </div>
+        </div>
+        {% if forloop.counter|divisibleby:"2" %}
+            </div>
+        {% endif %}
+    {% endfor %}
+
+{% endblock %}
