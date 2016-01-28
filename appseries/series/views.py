@@ -213,13 +213,11 @@ def serie(request, selectedId, season=0):
 
 	try:
 		show = Serie.objects.get(id=int(selectedId))
-		countSeasons = Capitulo.objects.filter(serie=int(selectedId)).aggregate(count=Max('temporada'))['count']
 
 		context = generateContext(request=request, title=show.nombre, series=series)
 		context["show"] = show
 		allEpisodes = Capitulo.objects.filter(serie=int(selectedId))
 		seasonCount = max(allEpisodes, key=lambda x: x.temporada).temporada
-		logger.info(seasonCount)
 		context["seasons"] = range(1, seasonCount+1)
 		if season>0:
 			context["episodes"] = allEpisodes.filter(temporada=season).order_by("numero")
@@ -255,14 +253,13 @@ def estadisticas(request, showId, seasonId, episodeId):
 
 			ipinfo = getLocationByList(ips)
 			df = pd.DataFrame(ipinfo)
-			cnt = df.groupby(by="country_name")['ip'].count().to_dict()
+			cnt = df.groupby(by="country_name")['ip'].count()
 			logger.info(df.to_string())
 
 			context = generateContext(request=request, title=show.nombre, series=series)
 			context["show"] = show
 			context["episode"] = episode
-			context["cnt_downloads"] = cnt
-			context["df_downloads"] = df
+			context["cnt_downloads"] = sorted(cnt.iteritems(), key=lambda x: x[1], reverse=True)
 
 		except (Serie.DoesNotExist, Capitulo.DoesNotExist):
 			context = generateContext(request=request, title="Not found", series=series)
