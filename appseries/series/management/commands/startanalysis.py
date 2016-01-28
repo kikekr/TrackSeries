@@ -9,7 +9,6 @@ import requests
 from requests.utils import quote
 from datetime import datetime, timedelta
 from time import sleep
-import os
 import libtorrent as lt
 
 class Command(BaseCommand):
@@ -60,6 +59,8 @@ class Command(BaseCommand):
         capitulo.save()
         # Inicialización de la sesión de libtorrent
         ses = lt.session()
+        ses.set_download_rate_limit(serie.limiteBajada * 1024)
+        ses.set_upload_rate_limit(serie.limiteSubida * 1024)
 
         while (deadline - datetime.now()).total_seconds()>0:
             # Comprobar si hay más urls disponibles en caso de no disponer de suficientes
@@ -71,7 +72,6 @@ class Command(BaseCommand):
                     info = lt.torrent_info(e)
                     params = { "save_path": self.tempUrl, "storage_mode": lt.storage_mode_t.storage_mode_sparse, "ti": info }
                     ses.add_torrent(params)
-                    # Tal vez establecer un limite de bajada y subida?
 
                     # Añadir la url de la descarga a la lista
                     urls.add(u)
