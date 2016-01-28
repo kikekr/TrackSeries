@@ -58,8 +58,16 @@ def addSerie(request, identifier):
 				description = 'None'
 			if image is None:
 				image = 'None'
+				
 			if genre is None:
 				genre = 'None'
+			else:
+				genre = genre.replace("|", ", ")
+				l = list(genre)
+				del(l[0])
+				del(l[len(l)-1])
+				genre = "".join(l)
+				
 			if status is None:
 				status = 'None'
 
@@ -154,8 +162,16 @@ def actualizar(serie):
 			description = 'None'
 		if image is None:
 			image = 'None'
+			
 		if genre is None:
 			genre = 'None'
+		else:
+			genre = genre.replace("|", ", ")
+			l = list(genre)
+			del(l[0])
+			del(l[len(l)-1])
+			genre = "".join(l)
+			
 		if status is None:
 			status = 'None'
 
@@ -175,7 +191,6 @@ def actualizar(serie):
 
 		try:
 			episode = Capitulo.objects.get(serie=serie.id, temporada=seasonNumber, numero=episodeNumber, titulo = episodeName)
-			print episode.titulo
 
 		except Capitulo.DoesNotExist:
 			Serie.objects.get(theTvdbID = serie.theTvdbID).capitulo_set.create(temporada = seasonNumber, numero = episodeNumber, titulo = episodeName, estado = 0)
