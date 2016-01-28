@@ -198,13 +198,11 @@ def serie(request, selectedId, season=0):
 
 	try:
 		show = Serie.objects.get(id=int(selectedId))
-		countSeasons = Capitulo.objects.filter(serie=int(selectedId)).aggregate(count=Max('temporada'))['count']
 
 		context = generateContext(request=request, title=show.nombre, series=series)
 		context["show"] = show
 		allEpisodes = Capitulo.objects.filter(serie=int(selectedId))
 		seasonCount = max(allEpisodes, key=lambda x: x.temporada).temporada
-		logger.info(seasonCount)
 		context["seasons"] = range(1, seasonCount+1)
 		if season>0:
 			context["episodes"] = allEpisodes.filter(temporada=season).order_by("numero")

@@ -1,20 +1,47 @@
 {% extends 'series/with-menu.html' %}
 
 {% block main %}
-  <h1 class="page-header">Preferencias</h1>
 
 <form id="formulario" action="{% url 'edit' selectedId %}" method="post">
-
-  <label for="limiteSubida">Límite velocidad de subida (kB/s)</label>
-  <input type="number" name="limiteSubida" id="limiteSubida" min="0" max="2048" step="1" value="{{limiteSubida}}"><br>
-  <label for="limiteSubida">Límite velocidad de descarga (kB/s)</label>
-  <input type="number" name="limiteDescarga" id="limiteDescarga" min="0" max="2048" step="1" value="{{limiteDescarga}}"><br>
-  <label for="tiempoAnalisis">Duración del análisis (h.)</label>
-  <input type="number" name="Horas" id="tiempoAnalisis" min="0" max="24" step="1" value="{{tiempoAnalisis}}"><br>
-  <label for="numTorrents">Número de torrents</label>
-  {% csrf_token %}
-  <input type="number" name="Torrents" id="numTorrents" min="0" max="10" step="1" value="{{numTorrents}}"><br></br>
-  <input type="submit" value=" Aceptar " name="butAceptarPreferencias"/> <br>
+    {% csrf_token %}
+    <thead>
+        <h1 class="page-header">Preferencias</h1>
+    </thead>
+    <table>
+        <tr>
+            <td>
+                <label for="limiteSubida">Límite velocidad de subida (kB/s): </label>
+            </td>
+            <td>
+                <input type="number" name="limiteSubida" id="limiteSubida" min="0" max="2048" step="1" value="{{limiteSubida}}">
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="limiteSubida">Límite velocidad de descarga (kB/s): </label>
+            </td>
+            <td>
+                <input type="number" name="limiteDescarga" id="limiteDescarga" min="0" max="2048" step="1" value="{{limiteDescarga}}">
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="tiempoAnalisis">Duración del análisis (h): </label>
+            </td>
+            <td>
+                <input type="number" name="Horas" id="tiempoAnalisis" min="0" max="24" step="1" value="{{tiempoAnalisis}}">
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="numTorrents">Número de torrents en paralelo: </label>
+            </td>
+            <td>
+                <input type="number" name="Torrents" id="numTorrents" min="0" max="10" step="1" value="{{numTorrents}}">
+            </td>
+        </tr>
+        <tr><td><input type="submit" value=" Guardar " name="butAceptarPreferencias"/></td></tr>
+    </table>
  </form>
 
 {% endblock %}
