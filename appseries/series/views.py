@@ -238,14 +238,13 @@ def estadisticas(request, showId, seasonId, episodeId):
 
 			ipinfo = getLocationByList(ips)
 			df = pd.DataFrame(ipinfo)
-			cnt = df.groupby(by="country_name")['ip'].count().to_dict()
+			cnt = df.groupby(by="country_name")['ip'].count()
 			logger.info(df.to_string())
 
 			context = generateContext(request=request, title=show.nombre, series=series)
 			context["show"] = show
 			context["episode"] = episode
-			context["cnt_downloads"] = cnt
-			context["df_downloads"] = df
+			context["cnt_downloads"] = sorted(cnt.iteritems(), key=lambda x: x[1], reverse=True)
 
 		except (Serie.DoesNotExist, Capitulo.DoesNotExist):
 			context = generateContext(request=request, title="Not found", series=series)
