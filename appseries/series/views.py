@@ -32,51 +32,49 @@ def generateContext(request=None, title=None, series=None):
 		context['series'] = series
 	return context
 
+def getSeriesForUser(request):
+	seriesByUser = UserSerie.objects.filter(user = auth.get_user(request))
+	series = []
+	for relation in seriesByUser:
+		series.append(relation.serie)
+
 def addSerie(request, identifier):
+	# Comprobar si el usuario esta autenticado
+	if not request.user.is_authenticated():
+		context = generateContext(request=request, title="Inicio")
+		return render(request, 'series/index-noauth.html', context)
 
-	if request.user.is_authenticated():
-		seriesByUser = UserSerie.objects.filter(user = auth.get_user(request))
-		series_list = []
-		for relation in seriesByUser:
-			series_list.append(relation.serie)
+	# Comprobar si la serie ya está en la base de datos
+	try:
+		s = Serie.objects.get(theTvdbID=identifier)
 
+		# Añadir serie al usuario correspondiente
+		userSerie = UserSerie(user=auth.get_user(request), serie=s)
+		userSerie.save()
+
+	except Serie.DoesNotExist:
+		# Si no está -> añadir a la base de datos y al usuario
 		api = APIseries()
 		data = api.getDictSerie(identifier)
-		
-		name = data['title']
-		airsday = data['Airs_DayOfWeek']
-		description = data['overview']
-		image = data['banner']
-		genre = data['genre']
-		status = data['status']
 
-		try :
-			tryingUserSerie = UserSerie.objects.get(user = auth.get_user(request), serie = Serie.objects.get(theTvdbID = identifier))
-			context = {'title' : 'Inicio', 'ID': identifier, 'nombre': name, 'series_list': series_list, 'existe': 'true'}
+		# Añadir serie a la base de datos
+		s = Serie(theTvdbID = identifier, nombre = data['title'], descripcion = data['overview'], imagen = data['banner'], \
+			genero = data['genre'], fechaEmision = data['Airs_DayOfWeek'], estado = data['status'], \
+			tiempoAnalisis = 24, numeroTorrents = 5, limiteSubida = 64, limiteBajada = 1024)
+		s.save()
 
-		except Serie.DoesNotExist :
+		# Añadir capítulos a la base de datos
+		episodeData = api.getStructuredEpisodes(identifier)
+		for episodeId, title, season, number in episodeData:
+			s.capitulo_set.create(theTvdbID=episodeId, temporada=season, numero=number, titulo=title, estado=0)
 
-			context = {'title' : 'Inicio', 'ID': identifier, 'nombre': name, 'series_list': series_list}
-			s = Serie(nombre = name, theTvdbID = identifier, descripcion = description, imagen = image, genero = genre, fechaEmision = airsday, estado = status, tiempoAnalisis = 1, numeroTorrents = 1, limiteSubida = 50, limiteBajada = 200)
-			s.save()
-			
-			dataStructuredEpisodes = api.getStructuredEpisodes(identifier)
-			for title, season, number in dataStructuredEpisodes:
-				Serie.objects.get(theTvdbID = identifier).capitulo_set.create(temporada = season, numero = number, titulo = title, estado = 0)
+		# Añadir serie al usuario correspondiente
+		userSerie = UserSerie(user=auth.get_user(request), serie=s)
+		userSerie.save()
 
-			us = UserSerie(user = auth.get_user(request), serie = Serie.objects.get(theTvdbID = identifier))
-			us.save()
-
-		except UserSerie.DoesNotExist :
-			context = {'title' : 'Inicio', 'ID': identifier, 'nombre': name, 'series_list': series_list}
-			us = UserSerie(user = auth.get_user(request), serie = Serie.objects.get(theTvdbID = identifier))
-			us.save()
-
-		return render(request, 'series/serieanadida.html', context)
-
-	else:
-		context = {'title' : 'Inicio', 'request' : request}
-		return render(request, 'series/index-noauth.html', context)
+	series = getSeriesForUser(request)
+	context = generateContext(request=request, title="Serie añadida correctamente", series=series)
+	return render(request, 'series/serieanadida.html', context)
 
 
 def nuevaSerie(request):
@@ -107,7 +105,7 @@ def actualizar(serie):
 
 	api = APIseries()
 	data = api.getDictSerie(str(serie.theTvdbID))
-		
+
 	serie.nombre = data['title']
 	serie.fechaemision = data['Airs_DayOfWeek']
 	serie.descripcion = data['overview']
@@ -116,7 +114,7 @@ def actualizar(serie):
 	serie.estado = data['status']
 
 	serie.save()
-	
+
 	dataStructuredEpisodes = api.getStructuredEpisodes(str(serie.theTvdbID))
 	for title, season, number in dataStructuredEpisodes:
 		try:
@@ -143,7 +141,7 @@ def serie(request, selectedId, season=0):
 
 	try:
 		show = Serie.objects.get(id=int(selectedId))
-		
+
 		if request.POST.get('butActualizar') is not None:
 			actualizar(show)
 
