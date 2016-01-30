@@ -38,32 +38,53 @@ class APIseries:
 		resp = requests.get("http://www.thetvdb.com/api/"+self.APIKEY+"/series/"+ID+"/en.xml")
 		if resp.status_code == 200:
 			root = objectify.fromstring(resp.content)
+			serieItem = root.Series
 			serie = {}
-			for s in root.iterchildren():
-				serie['title'] = self.getTextValue(s.find("SeriesName"))
-				banner = self.getTextValue(s.find("banner"))
-				if not banner:
-					serie['banner'] = "https://i.imgur.com/VMLDXzQ.jpg" # Not available banner
-				else:
-					serie['banner'] = "https://thetvdb.com/banners/" + banner
-				serie['overview'] = self.getTextValue(s.find("Overview"))
-				serie['apiId'] = ID
 
-				airsday = self.getTextValue(s.find("Airs_DayOfWeek"))
-				if not airsday:
-					serie['Airs_DayOfWeek'] = 'None'
-				else:
-					serie['Airs_DayOfWeek'] = airsday
+			serie['title'] = self.getTextValue(serieItem.find("SeriesName"))
+			banner = self.getTextValue(serieItem.find("banner"))
+			if not banner:
+				serie['banner'] = "https://i.imgur.com/VMLDXzQ.jpg" # Not available banner
+			else:
+				serie['banner'] = "https://thetvdb.com/banners/" + banner
+			serie['overview'] = self.getTextValue(serieItem.find("Overview"))
+			serie['apiId'] = ID
 
-				genres = self.getTextValue(s.find("Genre")).split("|")
+			airsday = self.getTextValue(serieItem.find("Airs_DayOfWeek"))
+			if not airsday:
+				serie['Airs_DayOfWeek'] = 'None'
+			else:
+				serie['Airs_DayOfWeek'] = airsday
+
+			genres = self.getTextValue(serieItem.find("Genre")).split("|")
+			if not genres:
+				serie['genre'] = "None"
+			else:
 				temp = ""
 				for g in genres:
 					if g:
 						temp = temp + g + ", "
 				serie['genre'] = temp[:-2]
-				serie['status'] = self.getTextValue(s.find("Status"))
+
+			serie['status'] = self.getTextValue(serieItem.find("Status"))
 
 			return serie
+
+		else:
+			return None
+
+	def getDictEpisode(self, id):
+		resp = requests.get("http://www.thetvdb.com/api/"+self.APIKEY+"/episodes/"+id+"/en.xml")
+		if resp.status_code == 200:
+			root = objectify.fromstring(resp.content)
+			episodeItem = root.Episode
+			episode = {}
+
+			title = self.getTextValue(episodeItem.find("EpisodeName"))
+			if not title:
+				episode['titulo'] = "None"
+			else:
+				episode['titulo'] = title
 
 		else:
 			return None

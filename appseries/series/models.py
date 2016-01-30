@@ -4,6 +4,7 @@ from django.db import models
 from django.contrib.auth.models import User
 
 import requests
+from series.APIseries import APIseries
 from lxml import objectify
 
 class Serie(models.Model):
@@ -24,7 +25,14 @@ class Serie(models.Model):
 		return self.nombre
 
 	def __update__(self):
-		return
+		api = APIseries()
+		data = api.getDictSerie(self.theTvdbID)
+		self.nombre = data['title']
+		self.descripcion = data['overview']
+		self.imagen = data['banner']
+		self.genero = data['genre']
+		self.fechaEmision = data['Airs_DayOfWeek']
+		self.estado = data['status']
 
 class Capitulo(models.Model):
 	theTvdbID = models.IntegerField()
@@ -42,6 +50,11 @@ class Capitulo(models.Model):
 
 	def __unicode__(self):
 		return self.titulo
+
+	def __update__(self):
+		api = APIseries()
+		data = api.getDictSerie(self.theTvdbID)
+		self.titulo = data['titulo']
 
 class IPDescarga(models.Model):
 	capitulo = models.ForeignKey(Capitulo)
@@ -65,8 +78,11 @@ def dailyUpdate():
 	updatedEpisodes = [int(episode.id) for episode in updates.Episode]
 
 	localSeries = Serie.objects.all()
-	for serie.id in localSeries:
+	for serie in localSeries:
 		if serie.theTvdbID in updatedSeries:
 			serie.__update__()
 
-	print updatedEpisodes
+	localEpisodes = Capitulo.objects.all()
+	for episode in localEpisodes:
+		if episode.theTvdbID in updatedEpisodes:
+			episode.__update__()
