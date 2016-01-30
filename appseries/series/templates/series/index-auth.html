@@ -3,6 +3,8 @@
 {% block main %}
   <h1 class="page-header">Panel de control</h1>
 
+  {% block messages %}{% endblock %}
+
   {% if series %}
     <div class="table-responsive">
       <table class="table table-striped">

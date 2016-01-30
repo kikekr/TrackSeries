@@ -1,38 +1,7 @@
-{% extends 'series/with-menu.html' %}
+{% extends 'series/index-auth.html' %}
 
-{% block sidebar %}
-  <ul class="nav nav-sidebar">
-    <li class="active"><a href="/series/"><span class="glyphicon glyphicon-th-list" aria-hidden="true"></span> Panel de control</a></li>
-  </ul>
-  
-  {% if series_list %}
-	<ul class="nav nav-sidebar">
-		<li><a href="/series/"><b>Mis series</b></a></li>
-		{% for series_list in series_list %}
-			<li><a href="/series/1">{{ series_list.nombre }}</a></li>
-		{% endfor %}
-	</ul>
-  {% endif %}
-  
-	<ul class="nav nav-sidebar">
-		<li><a href="/series/nueva"><b>Añadir serie</b></a></li>
-	</ul>
-	
-	
-	<ul class="nav nav-sidebar">
-		<li><a href="/series/estadisticas"><b>Estadísticas</b></a></li>
-	</ul>
-  
-{% endblock %}
-
-{% block main %}
-
-  {% if existe %}
-	    <h1 class="page-header">Error</h1>
-		La serie {{ nombre }} ya existe en la base de datos
-  {% else %}
-		<h1 class="page-header">Serie añadida</h1>
-		La serie {{ nombre }} ha sido añadida correctamente
-  {% endif %}
-
+{% block messages %}
+    <div class="alert alert-success" role="alert">
+        <span><b>Success! </b>Show was added</span>
+    </div>
 {% endblock %}

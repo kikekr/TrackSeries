@@ -1,20 +1,14 @@
 # -*- coding: utf-8 -*-
 
-from xml.etree import ElementTree as ET
-import requests
-import sys
 from APIseries import APIseries
 from APIfreegeoip import getLocationByList
 from django.shortcuts import render, redirect
 from series.models import Capitulo, IPDescarga, Serie, UserSerie
-from django import forms
-from django.db.models import Max
 from django.contrib.auth.forms import UserCreationForm
 from django.http import HttpResponseRedirect
 import pandas as pd
 from django.contrib import auth
 from django.core.management import call_command
-import itertools
 
 # import the logging library
 import logging
@@ -33,10 +27,7 @@ def generateContext(request=None, title=None, series=None):
 	return context
 
 def getSeriesForUser(request):
-	seriesByUser = UserSerie.objects.filter(user = auth.get_user(request))
-	series = []
-	for relation in seriesByUser:
-		series.append(relation.serie)
+	return [userSerie.serie for userSerie in UserSerie.objects.filter(user=auth.get_user(request))]
 
 def addSerie(request, identifier):
 	# Comprobar si el usuario esta autenticado
@@ -47,10 +38,12 @@ def addSerie(request, identifier):
 	# Comprobar si la serie ya está en la base de datos
 	try:
 		s = Serie.objects.get(theTvdbID=identifier)
+		userSerie = UserSerie.objects.get(serie=s)
 
-		# Añadir serie al usuario correspondiente
-		userSerie = UserSerie(user=auth.get_user(request), serie=s)
-		userSerie.save()
+		# Si la serie ya existe para ese usuario devolver un error
+		series = getSeriesForUser(request)
+		context = generateContext(request=request, title="Error al añadir serie", series=series)
+		return render(request, 'series/erroranadida.html', context)
 
 	except Serie.DoesNotExist:
 		# Si no está -> añadir a la base de datos y al usuario
@@ -69,6 +62,11 @@ def addSerie(request, identifier):
 			s.capitulo_set.create(theTvdbID=episodeId, temporada=season, numero=number, titulo=title, estado=0)
 
 		# Añadir serie al usuario correspondiente
+		userSerie = UserSerie(user=auth.get_user(request), serie=s)
+		userSerie.save()
+
+	except UserSerie.DoesNotExist:
+		# La serie existe en la base de datos, pero no está asociada al usuario
 		userSerie = UserSerie(user=auth.get_user(request), serie=s)
 		userSerie.save()
 
