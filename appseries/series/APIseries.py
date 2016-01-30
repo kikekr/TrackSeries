@@ -1,10 +1,9 @@
 from xml.etree import ElementTree as ET
 from lxml import objectify
 import requests
-import sys
+
 
 class APIseries:
-
 
 	def __init__ (self):
 		self.APIKEY = "EB224CCBC0C8E52F"
@@ -16,7 +15,7 @@ class APIseries:
 			return None
 
 	def getStructuredSeries(self, name):
-		resp = requests.get("http://www.thetvdb.com/api/GetSeries.php?seriesname="+name+"&language=es")
+		resp = requests.get("http://www.thetvdb.com/api/GetSeries.php?seriesname="+name+"&language=en")
 		if resp.status_code == 200:
 			series = []
 			root = objectify.fromstring(resp.content)
@@ -34,9 +33,9 @@ class APIseries:
 
 		else:
 			return None
-			
+
 	def getDictSerie(self, ID):
-		resp = requests.get("http://www.thetvdb.com/api/"+self.APIKEY+"/series/"+ID+"/es.xml")
+		resp = requests.get("http://www.thetvdb.com/api/"+self.APIKEY+"/series/"+ID+"/en.xml")
 		if resp.status_code == 200:
 			root = objectify.fromstring(resp.content)
 			serie = {}
@@ -49,16 +48,21 @@ class APIseries:
 					serie['banner'] = "https://thetvdb.com/banners/" + banner
 				serie['overview'] = self.getTextValue(s.find("Overview"))
 				serie['apiId'] = ID
-				
+
 				airsday = self.getTextValue(s.find("Airs_DayOfWeek"))
 				if not airsday:
 					serie['Airs_DayOfWeek'] = 'None'
 				else:
-					serie['Airs_DayOfWeek'] = airsday	
+					serie['Airs_DayOfWeek'] = airsday
 
-				serie['genre'] = self.getTextValue(s.find("Genre"))
+				genres = self.getTextValue(s.find("Genre")).split("|")
+				temp = ""
+				for g in genres:
+					if g:
+						temp = temp + g + ", "
+				serie['genre'] = temp[:-2]
 				serie['status'] = self.getTextValue(s.find("Status"))
-				
+
 			return serie
 
 		else:
@@ -66,7 +70,7 @@ class APIseries:
 
 	def getSeries(self, name):
 
-		response = requests.get("http://www.thetvdb.com/api/GetSeries.php?seriesname="+name+"&language=es")
+		response = requests.get("http://www.thetvdb.com/api/GetSeries.php?seriesname="+name+"&language=en")
 
 		if (response.status_code == 200):
 			data = ET.fromstring(response.content)
@@ -74,7 +78,7 @@ class APIseries:
 
 	def getSeriesByRemoteID(self, ID):
 
-		response = requests.get("http://www.thetvdb.com/api/"+self.APIKEY+"/series/"+ID+"/es.xml")
+		response = requests.get("http://www.thetvdb.com/api/"+self.APIKEY+"/series/"+ID+"/en.xml")
 
 		if (response.status_code == 200):
 			data = ET.fromstring(response.content)
@@ -82,14 +86,14 @@ class APIseries:
 
 	def getEpisodes(self, ID):
 
-		response = requests.get("http://www.thetvdb.com/api/"+self.APIKEY+"/series/"+ID+"/all/es.xml")
+		response = requests.get("http://www.thetvdb.com/api/"+self.APIKEY+"/series/"+ID+"/all/en.xml")
 
 		if (response.status_code == 200):
 			data = ET.fromstring(response.content)
 			return data
-			
+
 	def getStructuredEpisodes(self, ID):
-		resp = requests.get("http://www.thetvdb.com/api/"+self.APIKEY+"/series/"+ID+"/all/es.xml")
+		resp = requests.get("http://www.thetvdb.com/api/"+self.APIKEY+"/series/"+ID+"/all/en.xml")
 		if resp.status_code == 200:
 			episodes = []
 			root = objectify.fromstring(resp.content)
@@ -97,16 +101,14 @@ class APIseries:
 				title = self.getTextValue(e.find("EpisodeName"))
 				season = self.getTextValue(e.find("SeasonNumber"))
 				number = self.getTextValue(e.find("EpisodeNumber"))
-				
+				episodeId = self.getTextValue(e.find("id"))
+
 				# Siempre hay capitulos que les falta alguno de los datos
-				if not title:
-					title = 'No title'
-				if not season:
-					season = 9999
-				if not number:
-					number = 9999
-					
-				episodes.append((title, season, number))
+				# Si un capitulo no tiene alguno de estos campos, se ignora!
+				if not title or not season or not number:
+					continue
+
+				episodes.append((episodeId, title, season, number))
 			return episodes
 
 		else:

@@ -1,6 +1,5 @@
-from django.conf.urls import patterns, url, include
+from django.conf.urls import url, include
 from series import views
-from django.conf.urls.static import static
 
 urlpatterns = [
 	url(r'^$', views.index, name='index'),
