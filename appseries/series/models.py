@@ -3,9 +3,12 @@
 from django.db import models
 from django.contrib.auth.models import User
 
+import requests
+from lxml import objectify
+
 class Serie(models.Model):
 	id = models.AutoField(primary_key=True)
-	theTvdbID = models.CharField(max_length=100)
+	theTvdbID = models.IntegerField()
 	nombre = models.CharField(max_length=100)
 	descripcion = models.CharField(max_length=500)
 	imagen = models.CharField(max_length=100)
@@ -20,7 +23,11 @@ class Serie(models.Model):
 	def __unicode__(self):
 		return self.nombre
 
+	def __update__(self):
+		return
+
 class Capitulo(models.Model):
+	theTvdbID = models.IntegerField()
 	serie = models.ForeignKey(Serie)
 	temporada = models.IntegerField()
 	numero = models.IntegerField()
@@ -48,3 +55,18 @@ class CachedLocation(models.Model):
 class UserSerie(models.Model):
 	user = models.ForeignKey(User)
 	serie = models.ForeignKey(Serie)
+
+def dailyUpdate():
+	url = "http://www.thetvdb.com/api/EB224CCBC0C8E52F/updates/updates_day.xml"
+	resp = requests.get(url)
+
+	updates = objectify.fromstring(resp.content)
+	updatedSeries = [int(serie.id) for serie in updates.Series]
+	updatedEpisodes = [int(episode.id) for episode in updates.Episode]
+
+	localSeries = Serie.objects.all()
+	for serie.id in localSeries:
+		if serie.theTvdbID in updatedSeries:
+			serie.__update__()
+
+	print updatedEpisodes
