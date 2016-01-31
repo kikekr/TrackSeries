@@ -2,11 +2,11 @@
 
 {% block main %}
   {% if request.GET.newuser %}
-    <div class="alert alert-success" role="alert">Usuario <b>{{ request.GET.newuser }}</b> creado correctamente.</div>
+    <div class="alert alert-success" role="alert">User <b>{{ request.GET.newuser }}</b> created successfully.</div>
   {% endif %}
 
-  <h1 class="page-header">No estas identificado</h1>
+  <h1 class="page-header">Hello</h1>
 
-  <span>Identifícate para poder acceder al panel de control y gestionar tus series</span>
+  <span>Please sign in to access your shows and manage them, or create an account if you dont have one yet.</span>
 {% endblock %}
 

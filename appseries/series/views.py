@@ -95,7 +95,7 @@ def nuevaSerie(request):
 
 	series = getSeriesForUser(request)
 
-	context = generateContext(title = "Añadir serie", series=series, request=request)
+	context = generateContext(title = "Add show", series=series, request=request)
 	api = APIseries()
 
 	if request.POST.has_key('myS'):
@@ -168,10 +168,10 @@ def index(request):
 		for relation in seriesByUser:
 			series.append(relation.serie)
 
-		return render(request, 'series/index-auth.html', generateContext(request=request, title="Inicio", series=series))
+		return render(request, 'series/index-auth.html', generateContext(request=request, title="Control panel", series=series))
 
 	else:
-		return render(request, 'series/index-noauth.html', generateContext(request=request, title="Inicio"))
+		return render(request, 'series/index-noauth.html', generateContext(request=request, title="Control panel"))
 
 def estadisticas(request, showId, seasonId, episodeId):
 	# Comprobar si el usuario esta autenticado

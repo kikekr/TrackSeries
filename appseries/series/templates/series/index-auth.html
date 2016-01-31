@@ -1,7 +1,7 @@
 {% extends 'series/with-menu.html' %}
 
 {% block main %}
-  <h1 class="page-header">Panel de control</h1>
+  <h1 class="page-header">Control panel</h1>
 
   {% block messages %}{% endblock %}
 
@@ -11,9 +11,9 @@
         <thead>
           <tr>
             <th>Id</th>
-            <th>Nombre</th>
-            <th>Estado</th>
-            <th>Acciones</th>
+            <th>Name</th>
+            <th>Status</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -41,6 +41,6 @@
       </table>
     </div>
   {% else %}
-  	No hay datos de series en la base de datos. Selecciona nuevas series para añadir.
+  	Your show list is empty. Start by adding some show.
   {% endif %}
 {% endblock %}

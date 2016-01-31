@@ -13,29 +13,29 @@
                     </div>
                     <table class="table">
                         <tr>
-                          <td><b>Género</b></td>
+                          <td><b>Genre</b></td>
                           <td>{{ show.genero }}</td>
                         </tr>
                         <tr>
-                          <td><b>Fecha de emisión</b></td>
+                          <td><b>Air date</b></td>
                           <td>{{ show.fechaEmision }}</td>
                         </tr>
                         <tr>
-                          <td><b>Estado</b></td>
+                          <td><b>Status</b></td>
                           <td>{{ show.estado }}</td>
                         </tr>
                         <tr>
-                          <td><b>Enlace a TheTVDB</b></td>
-                          <td><a href="https://thetvdb.com/index.php?tab=series&id={{ show.theTvdbID }}">Enlace</a></td>
+                          <td><b>External link</b></td>
+                          <td><a href="https://thetvdb.com/index.php?tab=series&id={{ show.theTvdbID }}">TheTvDB</a></td>
                         </tr>
                         <tr>
 							{% if episode.estado != 1 %}
 								{% if user.is_superuser %}
-									<td><b>Actualizar serie</b></td>
+									<td><b>Update data</b></td>
 									<td>
 										<form id="formulario" action="{% url 'serie' show.id %}" method="post">
 											{% csrf_token %}
-											<input type="submit" value=" Actualizar " name="butActualizar"/>
+											<input type="submit" value=" Run update " name="butActualizar"/>
 										</form>
 									</td>
 								{% endif %}
@@ -49,15 +49,15 @@
                                 <div class="dropdown">
                                     <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
                                         {% if episodes %}
-                                            Temporada {{ episodes.0.temporada }}
+                                            Season {{ episodes.0.temporada }}
                                         {% else %}
-                                            Selecciona temporada
+                                            Pick season
                                         {% endif %}
                                         <span class="caret"></span>
                                     </button>
                                     <ul class="dropdown-menu">
                                         {% for s in seasons %}
-                                            <li><a href="{% url 'serie' show.id s %}">Temporada {{ s }}</a></li>
+                                            <li><a href="{% url 'serie' show.id s %}">Season {{ s }}</a></li>
                                         {% endfor %}
                                     </ul>
                                 </div>
@@ -77,9 +77,9 @@
                                                 </div>
                                             </div>
                                         {% elif episode.estado == -1 %}
-                                            <span class="glyphicon glyphicon-ban-circle" aria-hidden="true"> No hay datos disponibles </span>
+                                            <span class="glyphicon glyphicon-ban-circle" aria-hidden="true"> No data available </span>
                                         {% elif episode.estado == -2 %}
-                                            <a href="{% url 'estadisticas' show.id episode.temporada episode.numero %}"><span class="glyphicon glyphicon-stats" aria-hidden="true"> Ver estadísticas</span></a>
+                                            <a href="{% url 'estadisticas' show.id episode.temporada episode.numero %}"><span class="glyphicon glyphicon-stats" aria-hidden="true"> Check stats</span></a>
                                         {% endif %}
                                     </td>
 

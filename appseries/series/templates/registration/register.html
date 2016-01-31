@@ -1,7 +1,7 @@
 {% extends 'series/no-menu.html' %}
 
 {% block main %}
-    <h1 class="page-header">Regístrate aquí</h1>
+    <h1 class="page-header">Registration form</h1>
 
     {% if error %}
         <div class="alert alert-danger" role="alert"><ul>
@@ -15,6 +15,6 @@
         {% csrf_token %}
         {{ form.as_p }}
 
-        <input type="submit" value="Registrarse" />
+        <input type="submit" value="Submit" />
     </form>
 {% endblock %}
