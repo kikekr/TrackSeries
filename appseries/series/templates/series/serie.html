@@ -70,26 +70,22 @@
                                 <tr>
                                     <td><b>{{ episode.titulo }}</b></td>
                                     <td>
-                                        {% if episode.estado == 1 %}
-                                            <span class="glyphicon glyphicon-transfer" aria-hidden="true"> Análisis en curso</span>
-                                        {% elif episode.estado == 2 %}
-                                            <a href="{% url 'estadisticas' show.id episode.temporada episode.numero %}"><span class="glyphicon glyphicon-stats" aria-hidden="true"> Ver estadísticas</span></a>
-                                        {% else %}
+                                        {% if episode.estado >= 0 %}
+                                            <div class="progress" style="width: 50%;">
+                                                <div class="progress-bar" role="progressbar" aria-valuenow="{{ episode.estado }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ episode.estado }}%;">
+                                                    {{ episode.estado }}%
+                                                </div>
+                                            </div>
+                                        {% elif episode.estado == -1 %}
                                             <span class="glyphicon glyphicon-ban-circle" aria-hidden="true"> No hay datos disponibles </span>
-
+                                        {% elif episode.estado == -2 %}
+                                            <a href="{% url 'estadisticas' show.id episode.temporada episode.numero %}"><span class="glyphicon glyphicon-stats" aria-hidden="true"> Ver estadísticas</span></a>
                                         {% endif %}
                                     </td>
 
-                                    {% if episode.estado != 1 %}
+                                    {% if episode.estado == -1 %}
 										{% if user.is_superuser %}
-										<td>
-											<form id="formulario" action="{% url 'serie' show.id %}" method="post">
-												 {% csrf_token %}
-												<input type="hidden" value=" {{episode.temporada}}" name="episodeSea"/>
-												<input type="hidden" value=" {{episode.numero}}" name="episodeNum"/>
-												<input type="submit" value=" Analizar " name="butAnalizar"/>
-											</form>
-										</td>
+										  <td><a href="{% url 'analizar' show.id episode.temporada episode.numero %}"><span class="glyphicon glyphicon-sort"> Force analysis</span></a></td>
 										{% endif %}
 									{% endif %}
 

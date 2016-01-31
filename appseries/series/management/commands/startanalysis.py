@@ -53,16 +53,20 @@ class Command(BaseCommand):
         # Lista de ips de peers conocidos
         peers = []
         # Momento de finalización
-        deadline = datetime.now() + timedelta(0, 0, 0, 0, 0, serie.tiempoAnalisis)
+        deadline = datetime.now() + timedelta(0, 0, 0, 0, serie.tiempoAnalisis, 0) # MODIF!!!!!!!!!!!!!!!!!!!
         # Establecer análisis del capítulo como iniciado
-        capitulo.estado = 1
+        capitulo.estado = 0
         capitulo.save()
         # Inicialización de la sesión de libtorrent
         ses = lt.session()
         ses.set_download_rate_limit(serie.limiteBajada * 1024)
         ses.set_upload_rate_limit(serie.limiteSubida * 1024)
 
-        while (deadline - datetime.now()).total_seconds()>0:
+        # Segundos totales del análisis
+        totalSeconds = serie.tiempoAnalisis*3600
+        remainingSeconds = totalSeconds
+
+        while remainingSeconds>0:
             # Comprobar si hay más urls disponibles en caso de no disponer de suficientes
             if len(urls)<serie.numeroTorrents:
                 newUrls = set(self.getTorrentsForEpisode(serie.nombre, int(temporada), int(numero), serie.numeroTorrents)) - urls
@@ -84,18 +88,20 @@ class Command(BaseCommand):
                         # Añadir a la base de datos
                         newIpDescarga = IPDescarga(capitulo=capitulo, ip=ip, hora=datetime.utcnow().strftime("%s"))
                         newIpDescarga.save()
-                        # Debug
-                        self.stdout.write(ip)
                         # Añadir los peers al set, evitando asi repetidos
                         peers.append(ip)
 
+            # Actualizar contadores y progreso
+            remainingSeconds = (deadline - datetime.now()).total_seconds()
+            capitulo.estado = (totalSeconds-remainingSeconds) * 100 / totalSeconds
+            capitulo.save()
             sleep(self.sleepTime)
 
         # Cerrar todas las conexiones activas
         for h in ses.get_torrents():
             ses.remove_torrent(h, lt.options_t.delete_files)
         # Establecer análisis del capítulo como finalizado
-        capitulo.estado = 2
+        capitulo.estado = -2
         capitulo.save()
 
     def handle(self, *args, **options):

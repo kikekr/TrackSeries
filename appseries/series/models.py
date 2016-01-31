@@ -42,9 +42,9 @@ class Capitulo(models.Model):
 	titulo = models.CharField(max_length=100)
 	"""
 	El estado se usa para indicar en qué estado se encuentra la recolección de datos a través de la descarga
-	0: No hay información disponible
-	1: En proceso de descarga
-	2: Información
+	   -1: No hay análisis disponible
+	   -2: Análisis completo
+	0-100: Progreso del análisis
 	"""
 	estado = models.IntegerField()
 
