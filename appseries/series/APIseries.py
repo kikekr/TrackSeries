@@ -1,7 +1,7 @@
 from xml.etree import ElementTree as ET
 from lxml import objectify
 import requests
-import datetime
+from datetime import datetime
 
 class APIseries:
 
