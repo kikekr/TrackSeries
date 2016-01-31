@@ -28,20 +28,7 @@
                           <td><b>External link</b></td>
                           <td><a href="https://thetvdb.com/index.php?tab=series&id={{ show.theTvdbID }}">TheTvDB</a></td>
                         </tr>
-                        <tr>
-							{% if episode.estado != 1 %}
-								{% if user.is_superuser %}
-									<td><b>Update data</b></td>
-									<td>
-										<form id="formulario" action="{% url 'serie' show.id %}" method="post">
-											{% csrf_token %}
-											<input type="submit" value=" Run update " name="butActualizar"/>
-										</form>
-									</td>
-								{% endif %}
-							{% endif %}
-                        </tr>
-                        <tr><td></td></tr>
+                        <tr><td></td><td></td></tr>
                     </table>
                     <table class="table">
                         <thead>

@@ -3,7 +3,7 @@
 from APIseries import APIseries
 from APIfreegeoip import getLocationByList
 from django.shortcuts import render, redirect
-from series.models import Capitulo, IPDescarga, Serie, UserSerie
+from series.models import Capitulo, IPDescarga, Serie, UserSerie, dailyUpdate
 from django.contrib.auth.forms import UserCreationForm
 from django.http import HttpResponseRedirect
 import pandas as pd
@@ -20,6 +20,7 @@ def generateContext(request=None, title=None, series=None):
 	context = {}
 	if request:
 		context['request'] = request
+		context['is_admin'] = request.user.is_superuser
 	if title:
 		context['title'] = title
 	if series:
@@ -108,29 +109,25 @@ def nuevaSerie(request):
 	return render(request, 'series/nuevaserie.html', context)
 
 
-def actualizar(serie):
+def actualizar(request):
+	# Comprobar si el usuario esta autenticado y es administrador
+	if not (request.user.is_authenticated() and request.user.is_superuser):
+		return redirect('index')
 
-	api = APIseries()
-	data = api.getDictSerie(str(serie.theTvdbID))
+	series = getSeriesForUser(request)
 
-	serie.nombre = data['title']
-	serie.fechaemision = data['Airs_DayOfWeek']
-	serie.descripcion = data['overview']
-	serie.imagen = data['banner']
-	serie.genero = data['genre']
-	serie.estado = data['status']
+	if request.POST.has_key('confirm'):
+		dailyUpdate()
+		context = generateContext(request=request, title="Control panel", series=series)
+		setContextSuccess(context, "All series and episodes were updated")
+		return render(request, "series/index-message.html", context)
 
-	serie.save()
+	elif request.POST.has_key('cancel'):
+		return redirect("index")
 
-	dataStructuredEpisodes = api.getStructuredEpisodes(str(serie.theTvdbID))
-	for title, season, number in dataStructuredEpisodes:
-		try:
-			episode = Capitulo.objects.get(serie=serie.id, temporada=season, numero=number, titulo = title)
-
-		except Capitulo.DoesNotExist:
-			Serie.objects.get(theTvdbID = serie.theTvdbID).capitulo_set.create(temporada = season, numero = number, titulo = title, estado = 0)
-
-	return
+	else:
+		context = generateContext(request=request, title="Update database", series=series)
+		return render(request, "series/actualizar.html", context)
 
 
 def serie(request, selectedId, season=0):
@@ -209,8 +206,8 @@ def estadisticas(request, showId, seasonId, episodeId):
 
 
 def analizar(request, showId, seasonId, episodeId):
-	# Comprobar si el usuario esta autenticado
-	if not request.user.is_authenticated():
+	# Comprobar si el usuario esta autenticado y es administrador
+	if not (request.user.is_authenticated() and request.user.is_superuser):
 		return redirect('index')
 
 	call_command('startanalysis', showId, seasonId, episodeId)

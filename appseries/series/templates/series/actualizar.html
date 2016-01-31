@@ -1,0 +1,14 @@
+{% extends 'series/with-menu.html' %}
+
+{% block main %}
+    <div class="alert alert-warning" role="alert">
+        <span>Do you really want to update all shows and episodes? Updates run on a daily basis and it takes some time.</span>
+        <form action="." method="post">
+            {% csrf_token %}
+            <div class="btn-group" role="group">
+                <input type="submit" class="btn btn-default" value="Yes" name="confirm"/>
+                <input type="submit" class="btn btn-default" value="No" name="cancel"/>
+            </div>
+        </form>
+    </div>
+{% endblock %}

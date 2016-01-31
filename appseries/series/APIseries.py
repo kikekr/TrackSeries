@@ -35,7 +35,7 @@ class APIseries:
 			return None
 
 	def getDictSerie(self, ID):
-		resp = requests.get("http://www.thetvdb.com/api/"+self.APIKEY+"/series/"+ID+"/en.xml")
+		resp = requests.get("http://www.thetvdb.com/api/"+self.APIKEY+"/series/"+str(ID)+"/en.xml")
 		if resp.status_code == 200:
 			root = objectify.fromstring(resp.content)
 			serieItem = root.Series
@@ -74,7 +74,7 @@ class APIseries:
 			return None
 
 	def getDictEpisode(self, id):
-		resp = requests.get("http://www.thetvdb.com/api/"+self.APIKEY+"/episodes/"+id+"/en.xml")
+		resp = requests.get("http://www.thetvdb.com/api/"+self.APIKEY+"/episodes/"+str(id)+"/en.xml")
 		if resp.status_code == 200:
 			root = objectify.fromstring(resp.content)
 			episodeItem = root.Episode
@@ -85,6 +85,7 @@ class APIseries:
 				episode['titulo'] = "None"
 			else:
 				episode['titulo'] = title
+			return episode
 
 		else:
 			return None

@@ -11,6 +11,7 @@ urlpatterns = [
     url(r'^(\d+)/(\d+)/(\d+)/analyze/$', views.analizar, name='analizar'),
 	url(r'^add/$', views.nuevaSerie, name='nueva'),
 	url(r'^submitnew/(?P<identifier>\d+)/$', views.addSerie, name='addSerie'),
+    url(r'^updateall/$', views.actualizar, name='actualizar'),
 	url(r'^register/$', views.register, name='register'),
 	url(r'^', include('django.contrib.auth.urls')),
 ]

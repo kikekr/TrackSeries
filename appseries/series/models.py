@@ -53,7 +53,7 @@ class Capitulo(models.Model):
 
 	def __update__(self):
 		api = APIseries()
-		data = api.getDictSerie(self.theTvdbID)
+		data = api.getDictEpisode(self.theTvdbID)
 		self.titulo = data['titulo']
 
 class IPDescarga(models.Model):
