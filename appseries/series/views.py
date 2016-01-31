@@ -71,8 +71,8 @@ def addSerie(request, identifier):
 
 		# Añadir capítulos a la base de datos
 		episodeData = api.getStructuredEpisodes(identifier)
-		for episodeId, title, season, number in episodeData:
-			s.capitulo_set.create(theTvdbID=episodeId, temporada=season, numero=number, titulo=title, estado=-1)
+		for episodeId, title, season, number, airdate in episodeData:
+			s.capitulo_set.create(theTvdbID=episodeId, temporada=season, numero=number, titulo=title, estado=-1, airDate=airdate)
 
 		# Añadir serie al usuario correspondiente
 		userSerie = UserSerie(user=auth.get_user(request), serie=s)

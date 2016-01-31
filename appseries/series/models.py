@@ -40,6 +40,7 @@ class Capitulo(models.Model):
 	temporada = models.IntegerField()
 	numero = models.IntegerField()
 	titulo = models.CharField(max_length=100)
+	airDate = models.IntegerField()
 	"""
 	El estado se usa para indicar en qué estado se encuentra la recolección de datos a través de la descarga
 	   -1: No hay análisis disponible
@@ -55,6 +56,7 @@ class Capitulo(models.Model):
 		api = APIseries()
 		data = api.getDictEpisode(self.theTvdbID)
 		self.titulo = data['titulo']
+		self.airDate = data['airdate']
 
 class IPDescarga(models.Model):
 	capitulo = models.ForeignKey(Capitulo)

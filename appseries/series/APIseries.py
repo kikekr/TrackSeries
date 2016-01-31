@@ -1,7 +1,7 @@
 from xml.etree import ElementTree as ET
 from lxml import objectify
 import requests
-
+import datetime
 
 class APIseries:
 
@@ -85,6 +85,11 @@ class APIseries:
 				episode['titulo'] = "None"
 			else:
 				episode['titulo'] = title
+			airdate = self.getTextValue(episode.find("FirstAired"))
+			if not airdate:
+				episode['airdate'] = 0
+			else:
+				episode['airdate'] = (datetime.strptime(airdate, "%Y-%m-%d") - datetime(1970, 1, 1)).total_seconds()
 			return episode
 
 		else:
@@ -130,10 +135,14 @@ class APIseries:
 				if not title or not season or not number:
 					continue
 
-				episodes.append((episodeId, title, season, number))
+				airdate = self.getTextValue(e.find("FirstAired"))
+				if airdate:
+					airseconds = (datetime.strptime(airdate, "%Y-%m-%d") - datetime(1970, 1, 1)).total_seconds()
+				else:
+					airseconds = 0
+
+				episodes.append((episodeId, title, season, number, airseconds))
 			return episodes
 
 		else:
 			return None
-
-
