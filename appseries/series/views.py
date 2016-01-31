@@ -29,6 +29,15 @@ def generateContext(request=None, title=None, series=None):
 def getSeriesForUser(request):
 	return [userSerie.serie for userSerie in UserSerie.objects.filter(user=auth.get_user(request))]
 
+def setContextSuccess(context, message):
+	context['success'] = message
+
+def setContextWarning(context, message):
+	context['warning'] = message
+
+def setContextError(context, message):
+	context['error'] = message
+
 def addSerie(request, identifier):
 	# Comprobar si el usuario esta autenticado
 	if not request.user.is_authenticated():
@@ -40,10 +49,11 @@ def addSerie(request, identifier):
 		s = Serie.objects.get(theTvdbID=identifier)
 		userSerie = UserSerie.objects.get(serie=s)
 
-		# Si la serie ya existe para ese usuario devolver un error
+		# Si la serie ya existe para ese usuario devolver un warning
 		series = getSeriesForUser(request)
-		context = generateContext(request=request, title="Error al añadir serie", series=series)
-		return render(request, 'series/erroranadida.html', context)
+		context = generateContext(request=request, title="Control panel", series=series)
+		setContextWarning(context, "You already have that show")
+		return render(request, 'series/index-message.html', context)
 
 	except Serie.DoesNotExist:
 		# Si no está -> añadir a la base de datos y al usuario
@@ -71,8 +81,9 @@ def addSerie(request, identifier):
 		userSerie.save()
 
 	series = getSeriesForUser(request)
-	context = generateContext(request=request, title="Serie añadida correctamente", series=series)
-	return render(request, 'series/serieanadida.html', context)
+	context = generateContext(request=request, title="Control panel", series=series)
+	setContextSuccess(context, "Show was added to your account")
+	return render(request, 'series/index-message.html', context)
 
 
 def nuevaSerie(request):
@@ -125,10 +136,7 @@ def actualizar(serie):
 
 
 def serie(request, selectedId, season=0):
-	seriesByUser = UserSerie.objects.filter(user = auth.get_user(request))
-	series = []
-	for relation in seriesByUser:
-		series.append(relation.serie)
+	series = getSeriesForUser(request)
 
 	if request.POST.get('butAnalizar') is not None:
 		episodeNum = request.POST.get('episodeNum')
@@ -146,8 +154,10 @@ def serie(request, selectedId, season=0):
 		context = generateContext(request=request, title=show.nombre, series=series)
 		context["show"] = show
 		allEpisodes = Capitulo.objects.filter(serie=int(selectedId))
-		seasonCount = max(allEpisodes, key=lambda x: x.temporada).temporada
-		context["seasons"] = range(1, seasonCount+1)
+		if len(allEpisodes)>0:
+			seasonCount = max(allEpisodes, key=lambda x: x.temporada).temporada
+			context["seasons"] = range(1, seasonCount+1)
+
 		if season>0:
 			context["episodes"] = allEpisodes.filter(temporada=season).order_by("numero")
 
@@ -201,37 +211,42 @@ def estadisticas(request, showId, seasonId, episodeId):
 
 
 def edit(request, selectedId):
-	if request.user.is_authenticated():
-		seriesByUser = UserSerie.objects.filter(user = auth.get_user(request))
-		series = []
-		for relation in seriesByUser:
-			series.append(relation.serie)
-
-		try:
-			s = Serie.objects.get(id = int(selectedId))
-			context = {'title' : s.nombre, 'series': series, 'request' : request, 'selectedId': selectedId, 'nombre': s.nombre, 'tiempoAnalisis': s.tiempoAnalisis, 'numTorrents': s.numeroTorrents, 'limiteSubida': s.limiteSubida, 'limiteDescarga': s.limiteBajada}
-			page = 'series/edit.html'
-
-			if request.POST.get('butAceptarPreferencias') is not None:
-				numTorrents = request.POST.get('Torrents')
-				tiempoAnalisis = request.POST.get('Horas')
-				limiteSubida = request.POST.get('limiteSubida')
-				limiteBajada = request.POST.get('limiteDescarga')
-				page = 'series/cambiosguardados.html'
-
-				s.tiempoAnalisis = tiempoAnalisis
-				s.numeroTorrents = numTorrents
-				s.limiteSubida = limiteSubida
-				s.limiteBajada = limiteBajada
-				s.save()
-
-		except Serie.DoesNotExist:
-			context = generateContext(request=request, title="Not found", series=series)
-		return render(request, page, context)
-
-	else:
+	# Comprobar si el usuario está identificado
+	if not request.user.is_authenticated():
 		context = {'title' : 'Inicio', 'request' : request}
 		return render(request, 'series/index-noauth.html', context)
+
+	series = getSeriesForUser(request)
+	try:
+		s = Serie.objects.get(id=selectedId)
+		# Comprobar si el usuaruo tiene acceso a esa serie
+		UserSerie.objects.get(user=auth.get_user(request), serie=s)
+
+		if request.POST.get('butAceptarPreferencias') is None:
+			context = generateContext(request=request, title=s.nombre, series=series)
+			context["selectedId"] = s.id
+			context['tiempoAnalisis'] = s.tiempoAnalisis
+			context['numTorrents'] = s.numeroTorrents
+			context['limiteSubida'] = s.limiteSubida
+			context['limiteDescarga'] = s.limiteBajada
+			return render(request, "series/edit.html", context)
+
+		else:
+			s.tiempoAnalisis = request.POST.get('Horas')
+			s.numeroTorrents = request.POST.get('Torrents')
+			s.limiteSubida = request.POST.get('limiteSubida')
+			s.limiteBajada = request.POST.get('limiteDescarga')
+			s.save()
+
+			context = generateContext(request=request, title="Control panel", series=series)
+			setContextSuccess(context, "Preferences updated for " + s.nombre)
+			return render(request, "series/index-message.html", context)
+
+	except (Serie.DoesNotExist, UserSerie.DoesNotExist):
+		context = generateContext(request=request, title="Control panel", series=series)
+		setContextError(context, "Show not found")
+		return render(request, "series/index-message.html", context)
+
 
 def eliminar(request, selectedId):
 	if request.user.is_authenticated():
