@@ -56,7 +56,7 @@ class Command(BaseCommand):
         # Lista de ips de peers conocidos
         peers = []
         # Momento de finalización
-        deadline = datetime.now() + timedelta(0, 0, 0, 0, serie.tiempoAnalisis, 0) # MODIF!!!!!!!!!!!!!!!!!!!
+        deadline = datetime.now() + timedelta(0, 0, 0, 0, 0, serie.tiempoAnalisis)
         # Establecer análisis del capítulo como iniciado
         capitulo.estado = 0
         capitulo.save()
