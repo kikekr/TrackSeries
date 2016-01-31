@@ -32,6 +32,9 @@ def getSeriesForUser(request):
 def setContextSuccess(context, message):
 	context['success'] = message
 
+def setContextInfo(context, message):
+	context['info'] = message
+
 def setContextWarning(context, message):
 	context['warning'] = message
 
@@ -41,8 +44,7 @@ def setContextError(context, message):
 def addSerie(request, identifier):
 	# Comprobar si el usuario esta autenticado
 	if not request.user.is_authenticated():
-		context = generateContext(request=request, title="Inicio")
-		return render(request, 'series/index-noauth.html', context)
+		return redirect('index')
 
 	# Comprobar si la serie ya está en la base de datos
 	try:
@@ -69,7 +71,7 @@ def addSerie(request, identifier):
 		# Añadir capítulos a la base de datos
 		episodeData = api.getStructuredEpisodes(identifier)
 		for episodeId, title, season, number in episodeData:
-			s.capitulo_set.create(theTvdbID=episodeId, temporada=season, numero=number, titulo=title, estado=0)
+			s.capitulo_set.create(theTvdbID=episodeId, temporada=season, numero=number, titulo=title, estado=-1)
 
 		# Añadir serie al usuario correspondiente
 		userSerie = UserSerie(user=auth.get_user(request), serie=s)
@@ -87,27 +89,23 @@ def addSerie(request, identifier):
 
 
 def nuevaSerie(request):
-	if request.user.is_authenticated():
-		seriesByUser = UserSerie.objects.filter(user = auth.get_user(request))
-		series = []
-		for relation in seriesByUser:
-			series.append(relation.serie)
+	# Comprobar si el usuario esta autenticado
+	if not request.user.is_authenticated():
+		return redirect('index')
 
-		context = generateContext(title = "Añadir serie", series=series, request=request)
-		api = APIseries()
+	series = getSeriesForUser(request)
 
-		if request.POST.has_key('myS'):
-				nameserie = request.POST['myS']
-				tuple_list = api.getStructuredSeries(nameserie)
+	context = generateContext(title = "Añadir serie", series=series, request=request)
+	api = APIseries()
 
-				if tuple_list and len(tuple_list) > 0:
-					context["tuple_list"] = tuple_list
+	if request.POST.has_key('myS'):
+			nameserie = request.POST['myS']
+			tuple_list = api.getStructuredSeries(nameserie)
 
-		return render(request, 'series/nuevaserie.html', context)
+			if tuple_list and len(tuple_list) > 0:
+				context["tuple_list"] = tuple_list
 
-	else:
-		context = generateContext(title = "Añadir serie", request=request)
-		return render(request, 'series/index-noauth.html', context)
+	return render(request, 'series/nuevaserie.html', context)
 
 
 def actualizar(serie):
@@ -136,14 +134,11 @@ def actualizar(serie):
 
 
 def serie(request, selectedId, season=0):
+	# Comprobar si el usuario esta autenticado
+	if not request.user.is_authenticated():
+		return redirect('index')
+
 	series = getSeriesForUser(request)
-
-	if request.POST.get('butAnalizar') is not None:
-		episodeNum = request.POST.get('episodeNum')
-		episodeSea = request.POST.get('episodeSea')
-
-		# Error de versiones
-		# call_command('startanalysis', selectedId, episodeSea, episodeNum)
 
 	try:
 		show = Serie.objects.get(id=int(selectedId))
@@ -179,42 +174,49 @@ def index(request):
 		return render(request, 'series/index-noauth.html', generateContext(request=request, title="Inicio"))
 
 def estadisticas(request, showId, seasonId, episodeId):
-	if request.user.is_authenticated():
-		seriesByUser = UserSerie.objects.filter(user = auth.get_user(request))
-		series = []
-		for relation in seriesByUser:
-			series.append(relation.serie)
+	# Comprobar si el usuario esta autenticado
+	if not request.user.is_authenticated():
+		return redirect('index')
 
-		try:
-			show = Serie.objects.get(id=int(showId))
-			episode = Capitulo.objects.get(serie=int(showId), temporada=int(seasonId), numero=int(episodeId))
-			ips = IPDescarga.objects.filter(capitulo=episode.id)
+	series = getSeriesForUser(request)
 
-			ipinfo = getLocationByList(ips)
-			df = pd.DataFrame(ipinfo)
-			cnt = df.groupby(by="country_name")['ip'].count()
-			logger.info(df.to_string())
+	try:
+		show = Serie.objects.get(id=int(showId))
+		episode = Capitulo.objects.get(serie=int(showId), temporada=int(seasonId), numero=int(episodeId))
+		ips = IPDescarga.objects.filter(capitulo=episode.id)
 
-			context = generateContext(request=request, title=show.nombre, series=series)
-			context["show"] = show
-			context["episode"] = episode
-			context["cnt_downloads"] = sorted(cnt.iteritems(), key=lambda x: x[1], reverse=True)
+		ipinfo = getLocationByList(ips)
+		df = pd.DataFrame(ipinfo)
+		cnt = df.groupby(by="country_name")['ip'].count()
+		logger.info(df.to_string())
 
-		except (Serie.DoesNotExist, Capitulo.DoesNotExist):
-			context = generateContext(request=request, title="Not found", series=series)
+		context = generateContext(request=request, title=show.nombre, series=series)
+		context["show"] = show
+		context["episode"] = episode
+		context["cnt_downloads"] = sorted(cnt.iteritems(), key=lambda x: x[1], reverse=True)
 
-		return render(request, 'series/estadisticas.html', context)
+	except (Serie.DoesNotExist, Capitulo.DoesNotExist):
+		context = generateContext(request=request, title="Not found", series=series)
 
-	else:
-		context = {'title' : 'Inicio', 'request' : request}
-		return render(request, 'series/index-noauth.html', context)
+	return render(request, 'series/estadisticas.html', context)
 
+
+def analizar(request, showId, seasonId, episodeId):
+	# Comprobar si el usuario esta autenticado
+	if not request.user.is_authenticated():
+		return redirect('index')
+
+	call_command('startanalysis', showId, seasonId, episodeId)
+
+	series = getSeriesForUser(request)
+	context = generateContext(request=request, title="Control panel", series=series)
+	setContextInfo(context, "Analysis started")
+	return render(request, 'series/index-message.html', context)
 
 def edit(request, selectedId):
-	# Comprobar si el usuario está identificado
+	# Comprobar si el usuario esta autenticado
 	if not request.user.is_authenticated():
-		context = {'title' : 'Inicio', 'request' : request}
-		return render(request, 'series/index-noauth.html', context)
+		return redirect('index')
 
 	series = getSeriesForUser(request)
 	try:
@@ -249,34 +251,33 @@ def edit(request, selectedId):
 
 
 def eliminar(request, selectedId):
-	if request.user.is_authenticated():
-		seriesByUser = UserSerie.objects.filter(user = auth.get_user(request))
-		series = []
-		for relation in seriesByUser:
-			series.append(relation.serie)
+	# Comprobar si el usuario esta autenticado
+	if not request.user.is_authenticated():
+		return redirect('index')
 
-		try:
-			show = UserSerie.objects.get(user = auth.get_user(request), serie = int(selectedId))
+	series = getSeriesForUser(request)
 
-			if request.POST.has_key('butAceptar'):
-				show.delete()
+	try:
+		show = UserSerie.objects.get(user = auth.get_user(request), serie = int(selectedId))
 
-				return redirect('index')
-			elif request.POST.has_key('butCancelar'):
-				return redirect('index')
-			else:
-				page = 'series/eliminar.html'
-				context = {'title' : show.serie, 'show' : show, 'series': series, 'request' : request}
+		if request.POST.has_key('butAceptar'):
+			show.delete()
 
-		except Serie.DoesNotExist:
-			page = 'series/serie.html'
-			context = {'title' : "Not found", 'series': series, 'request' : request}
+			return redirect('index')
+		elif request.POST.has_key('butCancelar'):
+			return redirect('index')
+		else:
+			page = 'series/eliminar.html'
+			context = generateContext(request=request, title=show.serie, series=series)
+			context['show'] = show
 
-		return render(request, page, context)
+	except Serie.DoesNotExist:
+		page = 'series/index-message.html'
+		context = generateContext(request=request, title="Control panel", series=series)
+		setContextError(context, "Show not found")
 
-	else:
-		context = {'title' : 'Inicio', 'request' : request}
-		return render(request, 'series/index-noauth.html', context)
+	return render(request, page, context)
+
 
 def register(request):
     context = { 'form' : UserCreationForm() }
