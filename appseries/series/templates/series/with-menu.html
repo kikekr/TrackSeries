@@ -2,6 +2,19 @@
 
 {% block content %}
   <div class="col-sm-3 col-md-2 sidebar">
+  {% if is_admin %}
+        <ul class="nav nav-sidebar">
+            <li><a><span class="glyphicon glyphicon-wrench" aria-hidden="true"><b> Admin tools</b></span></a></li>
+            {% url 'actualizar' as updateurl %}
+            {% if request and request.path == updateurl %}
+                <li class="active">
+            {% else %}
+                <li>
+            {% endif %}
+            <a href="{% url 'actualizar' %}"> Update all shows</a></li>
+        </ul>
+    {% endif %}
+
     <ul class="nav nav-sidebar">
         {% url 'index' as indexurl %}
         {% if request and request.path == indexurl %}
@@ -9,12 +22,12 @@
         {% else %}
             <li>
         {% endif %}
-        <a href="{% url 'index' %}"><span class="glyphicon glyphicon-th-list" aria-hidden="true"></span> Control panel</a></li>
+        <a href="{% url 'index' %}"><span class="glyphicon glyphicon-th-list" aria-hidden="true"><b> Control panel</b></span></a></li>
     </ul>
 
     {% if series %}
         <ul class="nav nav-sidebar">
-            <li><a><b>My shows</b></a></li>
+            <li><a><span class="glyphicon glyphicon-film" aria-hidden="true"><b> My shows</b></span></a></li>
             {% for serie in series %}
                 {% if show and serie.id == show.id %}
                     <li class="active">
@@ -33,7 +46,7 @@
         {% else %}
             <li>
         {% endif %}
-        <a href="{% url 'nueva' %}"><b>Add new show</b></a></li>
+        <a href="{% url 'nueva' %}"><span class="glyphicon glyphicon-plus" aria-hidden="true"><b> Add new show</b></span></a></li>
     </ul>
   </div>
   <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
