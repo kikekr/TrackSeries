@@ -25,7 +25,10 @@ class Command(BaseCommand):
         page = requests.get(url)
         root = html.fromstring(page.content)
         # La primera tabla de la clase data es la tabla correspondiente a la búsqueda
-        table = root.find_class("data")[0]
+        try:
+            table = root.find_class("data")[0]
+        except IndexError:
+            return []
         # Los enlaces al fichero .torrent tienen el atributo data-download en su elemento
         links = table.findall(".//a[@data-download]")
         # Devolvemos los enlaces
