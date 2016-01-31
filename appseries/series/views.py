@@ -185,20 +185,27 @@ def estadisticas(request, showId, seasonId, episodeId):
 		episode = Capitulo.objects.get(serie=int(showId), temporada=int(seasonId), numero=int(episodeId))
 		ips = IPDescarga.objects.filter(capitulo=episode.id)
 
-		ipinfo = getLocationByList(ips)
-		df = pd.DataFrame(ipinfo)
-		cnt = df.groupby(by="country_name")['ip'].count()
-		logger.info(df.to_string())
-
 		context = generateContext(request=request, title=show.nombre, series=series)
 		context["show"] = show
 		context["episode"] = episode
-		context["cnt_downloads"] = sorted(cnt.iteritems(), key=lambda x: x[1], reverse=True)
+
+		if len(ips)>0:
+			ipinfo = getLocationByList(ips)
+			df = pd.DataFrame(ipinfo)
+			cnt = df.groupby(by="country_name")['ip'].count()
+			logger.info(df.to_string())
+
+			context["cnt_downloads"] = sorted(cnt.iteritems(), key=lambda x: x[1], reverse=True)
+
+		else:
+			context["no_data"] = 1
+
+		return render(request, 'series/estadisticas.html', context)
 
 	except (Serie.DoesNotExist, Capitulo.DoesNotExist):
 		context = generateContext(request=request, title="Not found", series=series)
-
-	return render(request, 'series/estadisticas.html', context)
+		setContextError(context, "Couldn't find the episode for the selected serie")
+		return render(request, 'series/index-message.html', context)
 
 
 def analizar(request, showId, seasonId, episodeId):
