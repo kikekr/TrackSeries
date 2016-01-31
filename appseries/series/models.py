@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 
 import requests
 from series.APIseries import APIseries
+import series.crontab as crontab
 from lxml import objectify
 
 class Serie(models.Model):
@@ -58,6 +59,7 @@ class Capitulo(models.Model):
 		self.titulo = data['titulo']
 		self.airDate = data['airdate']
 
+
 class IPDescarga(models.Model):
 	capitulo = models.ForeignKey(Capitulo)
 	ip = models.CharField(max_length=15)
@@ -88,3 +90,5 @@ def dailyUpdate():
 	for episode in localEpisodes:
 		if episode.theTvdbID in updatedEpisodes:
 			episode.__update__()
+			crontab.setAnalysisSchedule(episode)
+	crontab.saveTempChanges(crontab.path)

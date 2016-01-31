@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import os, errno
+import os, errno, sys
 from datetime import datetime
 
 path = "/tmp/.appseries/test"
@@ -59,8 +59,9 @@ def setAnalysisSchedule(episode):
     # Si la fecha de emisión es futura, establecer un análisis
     if (airDate - datetime.utcnow()).total_seconds()>0:
         header = "# %i %i" % (episode.serie.id, episode.id)
+        sys.stdout.write("%s %s %s\n" % (str(type(episode.serie.id)), str(type(episode.temporada)), str(type(episode.numero))))
         crontabLine = "0 0 %i %i * " % (airDate.day, airDate.month) + programPath + "appseries/manage.py " + \
-            "startanalysis %i %i %i >/dev/null 2>&1" % (episode.serie.id, episode.temporada, episode.numero)
+            "startanalysis %i %i %i >/dev/null 2>&1" % (int(episode.serie.id), int(episode.temporada), int(episode.numero))
 
         content = readFileContent(path)
         # Buscar cabecera del capitulo
