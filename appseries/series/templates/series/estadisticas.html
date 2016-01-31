@@ -1,0 +1,31 @@
+{% extends 'series/with-menu.html' %}
+
+{% block main %}
+  <h1 class="page-header">{{ show }} - {{ episode }}</h1>
+
+  {% if no_data %}
+    <div class="alert alert-warning" role="alert">
+      <span>No data available for this episode</span>
+    </div>
+  {% else %}
+    <h2 class="page-header">General results</h2>
+    <div class="table-responsive">
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>Country</th>
+            <th>Peers count</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for country, downloads in cnt_downloads %}
+            <tr>
+              <td>{{ country }}</td>
+              <td>{{ downloads }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% endif %}
+{% endblock %}

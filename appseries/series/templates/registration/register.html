@@ -1,0 +1,20 @@
+{% extends 'series/no-menu.html' %}
+
+{% block main %}
+    <h1 class="page-header">Registration form</h1>
+
+    {% if error %}
+        <div class="alert alert-danger" role="alert"><ul>
+            {% for e in error.itervalues %}
+                <li>{{ e }}</li>
+            {% endfor %}
+        </ul></div>
+    {% endif %}
+
+    <form method="post" action=".">
+        {% csrf_token %}
+        {{ form.as_p }}
+
+        <input type="submit" value="Submit" />
+    </form>
+{% endblock %}

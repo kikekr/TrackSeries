@@ -1,0 +1,12 @@
+{% extends 'series/no-menu.html' %}
+
+{% block main %}
+  {% if request.GET.newuser %}
+    <div class="alert alert-success" role="alert">User <b>{{ request.GET.newuser }}</b> created successfully.</div>
+  {% endif %}
+
+  <h1 class="page-header">Hello</h1>
+
+  <span>Please sign in to access your shows and manage them, or create an account if you dont have one yet.</span>
+{% endblock %}
+

@@ -1,0 +1,91 @@
+{% extends 'series/with-menu.html' %}
+
+{% block main %}
+    {% if show %}
+        <div class="container">
+            <div class="row">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <img src="{{ show.imagen }}" class="img-responsive center-block">
+                    </div>
+                    <div class="panel-body">
+                        <span>{{ show.descripcion }}</span>
+                    </div>
+                    <table class="table">
+                        <tr>
+                          <td><b>Genre</b></td>
+                          <td>{{ show.genero }}</td>
+                        </tr>
+                        <tr>
+                          <td><b>Air date</b></td>
+                          <td>{{ show.fechaEmision }}</td>
+                        </tr>
+                        <tr>
+                          <td><b>Status</b></td>
+                          <td>{{ show.estado }}</td>
+                        </tr>
+                        <tr>
+                          <td><b>External link</b></td>
+                          <td><a href="https://thetvdb.com/index.php?tab=series&id={{ show.theTvdbID }}">TheTvDB</a></td>
+                        </tr>
+                        <tr><td></td><td></td></tr>
+                    </table>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <div class="dropdown">
+                                    <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
+                                        {% if episodes %}
+                                            Season {{ episodes.0.temporada }}
+                                        {% else %}
+                                            Pick season
+                                        {% endif %}
+                                        <span class="caret"></span>
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        {% for s in seasons %}
+                                            <li><a href="{% url 'serie' show.id s %}">Season {{ s }}</a></li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        {% if episodes %}
+                        <tbody>
+                            {% for episode in episodes %}
+                                <tr>
+                                    <td><b>{{ episode.titulo }}</b></td>
+                                    <td>
+                                        {% if episode.estado >= 0 %}
+                                            <div class="progress" style="width: 50%;">
+                                                <div class="progress-bar" role="progressbar" aria-valuenow="{{ episode.estado }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ episode.estado }}%;">
+                                                    {{ episode.estado }}%
+                                                </div>
+                                            </div>
+                                        {% elif episode.estado == -1 %}
+                                            <span class="glyphicon glyphicon-ban-circle" aria-hidden="true"> No data available </span>
+                                        {% elif episode.estado == -2 %}
+                                            <a href="{% url 'estadisticas' show.id episode.temporada episode.numero %}"><span class="glyphicon glyphicon-stats" aria-hidden="true"> Check stats</span></a>
+                                        {% endif %}
+                                    </td>
+
+                                    {% if episode.estado == -1 %}
+										{% if user.is_superuser %}
+										  <td><a href="{% url 'analizar' show.id episode.temporada episode.numero %}"><span class="glyphicon glyphicon-sort"> Force analysis</span></a></td>
+										{% endif %}
+									{% endif %}
+
+                                </tr>
+                            {% endfor %}
+                            <tr><td></td></tr>
+                        </tbody>
+                        {% endif %}
+                    </table>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="alert alert-danger" role="alert">Serie no encontrada</div>
+    {% endif %}
+{% endblock %}

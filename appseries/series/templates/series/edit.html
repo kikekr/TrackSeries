@@ -1,0 +1,47 @@
+{% extends 'series/with-menu.html' %}
+
+{% block main %}
+
+<form id="formulario" action="{% url 'edit' selectedId %}" method="post">
+    {% csrf_token %}
+    <thead>
+        <h1 class="page-header">Preferences</h1>
+    </thead>
+    <table>
+        <tr>
+            <td>
+                <span>Limit upspeed (kB/s): </span>
+            </td>
+            <td>
+                <input type="number" name="limiteSubida" id="limiteSubida" min="0" max="2048" step="1" value="{{limiteSubida}}">
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span>Limit downspeed (kB/s): </span>
+            </td>
+            <td>
+                <input type="number" name="limiteDescarga" id="limiteDescarga" min="0" max="2048" step="1" value="{{limiteDescarga}}">
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span>Analysis duration (h): </span>
+            </td>
+            <td>
+                <input type="number" name="Horas" id="tiempoAnalisis" min="0" max="24" step="1" value="{{tiempoAnalisis}}">
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span>Number of torrents to analyze: </span>
+            </td>
+            <td>
+                <input type="number" name="Torrents" id="numTorrents" min="0" max="10" step="1" value="{{numTorrents}}">
+            </td>
+        </tr>
+        <tr><td><input type="submit" value=" Save " name="butAceptarPreferencias"/></td></tr>
+    </table>
+ </form>
+
+{% endblock %}
