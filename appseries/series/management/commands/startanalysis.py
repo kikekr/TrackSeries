@@ -22,7 +22,11 @@ class Command(BaseCommand):
     def getTorrentsForEpisode(self, tvshow, season, episode, count):
         # Url de búsqueda en kat.cr
         url = "https://kat.cr/usearch/" + quote("%s S%02dE%02d" % (tvshow, season, episode), safe="")
-        page = requests.get(url)
+        try:
+            page = requests.get(url, verify=True)
+        except (requests.exceptions.SSLError, requests.exceptions.ConnectionError, requests.exceptions.ConnectTimeout):
+            # Si no es posible recuperar la lista de torrents salimos
+            return []
         root = html.fromstring(page.content)
         # La primera tabla de la clase data es la tabla correspondiente a la búsqueda
         try:
