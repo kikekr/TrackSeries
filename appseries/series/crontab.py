@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import os, errno, sys
+import os, errno
 from datetime import datetime
 
 path = "/tmp/.appseries/test"
@@ -35,22 +35,22 @@ def saveTempChanges(file_path):
     # Load new crontab file onto the system
     os.system("crontab " + file_path)
 
-def setDailyUpdate():
-    content = readFileContent(path)
+def setDailyUpdate(file_path):
+    content = readFileContent(file_path)
     header = "# Daily data update"
-    crontabLine = "0 0 * * * ./manage.py updateEverything >/dev/null 2>&1"
+    crontabLine = "0 0 * * * " + programPath + "appseries/manage.py updateseries daily >/dev/null 2>&1"
 
     # Busca la cabecera y actualiza la línea
     for lineNumber in xrange(0, len(content)):
         if (content[lineNumber] == header):
             content[lineNumber+1] = crontabLine
-            writeFileContent(path, content)
+            writeFileContent(file_path, content)
             return
 
     # De no encontrarla, se escribe al final del fichero cabecera y linea de crontab
     content.append(header)
     content.append(crontabLine)
-    writeFileContent(path, content)
+    writeFileContent(file_path, content)
 
 def setAnalysisSchedule(episode):
     content = readFileContent(path)
@@ -59,7 +59,6 @@ def setAnalysisSchedule(episode):
     # Si la fecha de emisión es futura, establecer un análisis
     if (airDate - datetime.utcnow()).total_seconds()>0:
         header = "# %i %i" % (episode.serie.id, episode.id)
-        sys.stdout.write("%s %s %s\n" % (str(type(episode.serie.id)), str(type(episode.temporada)), str(type(episode.numero))))
         crontabLine = "0 0 %i %i * " % (airDate.day, airDate.month) + programPath + "appseries/manage.py " + \
             "startanalysis %i %i %i >/dev/null 2>&1" % (int(episode.serie.id), int(episode.temporada), int(episode.numero))
 

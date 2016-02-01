@@ -27,6 +27,8 @@ class Serie(models.Model):
 
 	def __update__(self):
 		api = APIseries()
+
+		# Actualizar serie
 		data = api.getDictSerie(self.theTvdbID)
 		self.nombre = data['title']
 		self.descripcion = data['overview']
@@ -34,6 +36,20 @@ class Serie(models.Model):
 		self.genero = data['genre']
 		self.fechaEmision = data['Airs_DayOfWeek']
 		self.estado = data['status']
+		self.save()
+
+		# Actualizar todos los capítulos de esta serie
+		structuredEpisodes = api.getStructuredEpisodes(self.theTvdbID)
+		for episodeId, title, season, number, airdate in structuredEpisodes:
+			try:
+				c = Capitulo.objects.get(theTvdbID=episodeId)
+				param = {"titulo": title, "airdate": airdate}
+				c.__update__(data=param)
+			except Capitulo.DoesNotExist:
+				c = Capitulo(serie=self, theTvdbID=episodeId, temporada=season, numero=number, titulo=title, estado=-1, airDate=airdate)
+				c.save()
+			crontab.setAnalysisSchedule(c)
+		crontab.saveTempChanges(crontab.path)
 
 class Capitulo(models.Model):
 	theTvdbID = models.IntegerField()
@@ -53,11 +69,13 @@ class Capitulo(models.Model):
 	def __unicode__(self):
 		return self.titulo
 
-	def __update__(self):
-		api = APIseries()
-		data = api.getDictEpisode(self.theTvdbID)
+	def __update__(self, data=None):
+		if not data:
+			api = APIseries()
+			data = api.getDictEpisode(self.theTvdbID)
 		self.titulo = data['titulo']
 		self.airDate = data['airdate']
+		self.save()
 
 
 class IPDescarga(models.Model):
@@ -91,4 +109,5 @@ def dailyUpdate():
 		if episode.theTvdbID in updatedEpisodes:
 			episode.__update__()
 			crontab.setAnalysisSchedule(episode)
+
 	crontab.saveTempChanges(crontab.path)
