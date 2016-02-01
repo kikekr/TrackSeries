@@ -23,3 +23,5 @@ appseries/series/APIfreegeoip.pyc
 appseries/series/management/commands/startanalysis.pyc
 appseries/series/management/__init__.pyc
 appseries/series/crontab.pyc
+appseries/series/management/commands/updateseries.pyc
+appseries/series/management/commands/__init__.pyc

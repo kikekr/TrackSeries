@@ -121,7 +121,7 @@ def actualizar(request):
 	series = getSeriesForUser(request)
 
 	if request.POST.has_key('confirm'):
-		dailyUpdate()
+		call_command('updateseries', "all")
 		context = generateContext(request=request, title="Control panel", series=series)
 		setContextSuccess(context, "All series and episodes were updated")
 		return render(request, "series/index-message.html", context)

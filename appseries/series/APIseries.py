@@ -85,7 +85,7 @@ class APIseries:
 				episode['titulo'] = "None"
 			else:
 				episode['titulo'] = title
-			airdate = self.getTextValue(episode.find("FirstAired"))
+			airdate = self.getTextValue(episodeItem.find("FirstAired"))
 			if not airdate:
 				episode['airdate'] = 0
 			else:
@@ -120,7 +120,7 @@ class APIseries:
 			return data
 
 	def getStructuredEpisodes(self, ID):
-		resp = requests.get("http://www.thetvdb.com/api/"+self.APIKEY+"/series/"+ID+"/all/en.xml")
+		resp = requests.get("http://www.thetvdb.com/api/"+self.APIKEY+"/series/"+str(ID)+"/all/en.xml")
 		if resp.status_code == 200:
 			episodes = []
 			root = objectify.fromstring(resp.content)
