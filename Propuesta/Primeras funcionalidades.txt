@@ -1,5 +1,0 @@
-FUNCIONALIDADES INICIALES PARA LA PRÁCTICA
-
-- Análisis geográfico de las descargas de torrents de una determinada serie televisiva.
-- Análisis de las series más compartidas en una determinada zona geográfica.
-
